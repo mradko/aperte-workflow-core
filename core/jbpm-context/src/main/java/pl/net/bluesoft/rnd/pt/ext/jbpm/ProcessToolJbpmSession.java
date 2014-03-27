@@ -897,7 +897,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	public void taskCreated(TaskUserEvent event) {
 		BpmTask task = getBpmTask(getJbpmService().getTask(event.getTaskId()));
 
-		captureTask(task, false);
+		captureTask(task, task.getPotentialOwners().contains(userLogin));
 		refreshDataForNativeQuery();
 	}
 
@@ -1268,6 +1268,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			if (assignedToCurrentUser) {
 				createdTasksForCurrentUser.add(task);
 			}
+
 			createdTasks.add(task);
 		}
 	}
