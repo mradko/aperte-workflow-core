@@ -1,24 +1,23 @@
 package org.aperteworkflow.webapi.main.processes;
 
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.web.domain.AbstractResultBean;
+import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBean;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
-import java.io.Serializable;
 import java.util.Date;
 
 import static pl.net.bluesoft.util.lang.Formats.nvl;
 
 /**
  * Process Instance Bean
- * 
+ *
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class BpmTaskBean extends AbstractResultBean
+public class BpmTaskBean extends TasksListViewBean
 {
 	private static final long serialVersionUID = 8814138252434090661L;
-	
+
 	private String name;
 	private String processName;
 	private String code;
@@ -31,12 +30,10 @@ public class BpmTaskBean extends AbstractResultBean
 	private String internalProcessId;
 	private String processStateConfigurationId;
 	private String tooltip;
-	private String queueName;
     private String step;
 	private String stepInfo;
-    private Boolean userCanClaim = false;
 
-	public static BpmTaskBean createFrom(BpmTask task, I18NSource messageSource)
+	public BpmTaskBean createFrom(BpmTask task, I18NSource messageSource)
 	{
         BpmTaskBean processBean = new BpmTaskBean();
         String processStatusCode = task.getProcessInstance().getBusinessStatus();
@@ -176,14 +173,6 @@ public class BpmTaskBean extends AbstractResultBean
 		this.tooltip = tooltip;
 	}
 
-	public String getQueueName() {
-		return queueName;
-	}
-
-	public void setQueueName(String queueName) {
-		this.queueName = queueName;
-	}
-
     public String getStep() {
         return step;
     }
@@ -199,12 +188,4 @@ public class BpmTaskBean extends AbstractResultBean
 	public void setStepInfo(String stepInfo) {
 		this.stepInfo = stepInfo;
 	}
-
-    public Boolean getUserCanClaim() {
-        return userCanClaim;
-    }
-
-    public void setUserCanClaim(Boolean userCanClaim) {
-        this.userCanClaim = userCanClaim;
-    }
 }

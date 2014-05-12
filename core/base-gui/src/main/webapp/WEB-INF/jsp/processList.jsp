@@ -45,7 +45,9 @@
 			 ],
 			 [[ 6, "desc" ]]
 			);
-		
+
+		dataTable.addParameter('taskListViewName','DpdListView');
+
 		dataTable.enableMobileMode = function()
 		{
 			this.toggleColumnButton("deadline", false);

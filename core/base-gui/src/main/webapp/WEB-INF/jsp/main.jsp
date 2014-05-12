@@ -11,6 +11,7 @@
 
 <!--<h2>Aperte Workflow Maginificient Activities</h2>-->
 <%@include file="windowManager.jsp" %>
+<%@include file="utils/apertedatatable.jsp" %>
 
 <c:if test="${aperteUser.login!=null}">
 

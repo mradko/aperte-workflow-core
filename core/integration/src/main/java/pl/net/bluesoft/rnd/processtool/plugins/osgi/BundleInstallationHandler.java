@@ -22,6 +22,8 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessHtmlWidget;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.controller.OsgiController;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
+import pl.net.bluesoft.rnd.processtool.web.view.TaskListView;
+import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBeanFactory;
 import pl.net.bluesoft.rnd.processtool.web.widgets.impl.FileWidgetJavaScriptProvider;
 import pl.net.bluesoft.rnd.util.AnnotationUtil;
 import pl.net.bluesoft.rnd.util.i18n.impl.PropertiesBasedI18NProvider;
@@ -127,6 +129,10 @@ public class BundleInstallationHandler {
 		if (bundleHelper.hasHeaderValues(RESOURCES)) {
 			handleBundleResources(eventType, bundleHelper);
 		}
+
+        if (bundleHelper.hasHeaderValues(TASK_LIST_VIEW)) {
+            handleTasksListView(eventType, bundleHelper);
+        }
 	}
 
     private void handleSpringBeans(int eventType, OSGiBundleHelper bundleHelper)
@@ -531,6 +537,39 @@ public class BundleInstallationHandler {
 			}
 		}
 	}
+
+    private void handleTasksListView(int eventType, OSGiBundleHelper bundleHelper)
+    {
+        Bundle bundle = bundleHelper.getBundle();
+        String[] classes = bundleHelper.getHeaderValues(TASK_LIST_VIEW);
+
+        for (String cls : classes)
+        {
+            try
+            {
+                Class<? extends TasksListViewBeanFactory> viewClass =
+                        (Class<? extends TasksListViewBeanFactory>)bundleHelper.getBundle().loadClass(cls);
+                TaskListView viewAnnotation = viewClass.getAnnotation(TaskListView.class);
+
+                String viewName = viewAnnotation.name();
+                if (eventType == Bundle.ACTIVE)
+                {
+                    TasksListViewBeanFactory taskView = viewClass.getConstructor().newInstance();
+                    processToolRegistry.getGuiRegistry().registerTasksListView(viewName, taskView);
+                }
+                else
+                {
+                    processToolRegistry.getGuiRegistry().unregisterTasksListView(viewName);
+                }
+            }
+            catch (Throwable e)
+            {
+                logger.log(Level.SEVERE, e.getMessage(), e);
+                forwardErrorInfoToMonitor(bundle.getSymbolicName(), e);
+            }
+        }
+
+    }
 
 	private void forwardErrorInfoToMonitor(String path, Throwable e) {
 		errorMonitor.forwardErrorInfoToMonitor(path, e);

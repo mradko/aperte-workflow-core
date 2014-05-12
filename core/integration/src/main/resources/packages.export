@@ -39,6 +39,8 @@ pl.net.bluesoft.rnd.util.xml.validation,
 pl.net.bluesoft.rnd.processtool.web.controller,
 pl.net.bluesoft.rnd.processtool.web.domain,
 pl.net.bluesoft.rnd.processtool.web.widgets.impl,
+pl.net.bluesoft.rnd.processtool.web.view,
+
 
 org.aperteworkflow.util.vaadin,
 

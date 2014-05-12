@@ -4,7 +4,6 @@ import com.google.common.io.CharStreams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
@@ -14,6 +13,7 @@ import pl.net.bluesoft.rnd.processtool.ui.widgets.ProcessToolWidget;
 import pl.net.bluesoft.rnd.processtool.web.controller.IOsgiWebController;
 import pl.net.bluesoft.rnd.processtool.web.domain.IHtmlTemplateProvider;
 import pl.net.bluesoft.rnd.processtool.web.domain.IWidgetScriptProvider;
+import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBeanFactory;
 import pl.net.bluesoft.util.lang.Classes;
 
 import java.io.*;
@@ -45,8 +45,9 @@ public class GuiRegistryImpl implements GuiRegistry {
 	private final Map<String, ProcessHtmlWidget> htmlWidgets = new HashMap<String, ProcessHtmlWidget>();
 	private final Map<String, IWidgetScriptProvider> widgetScriptProviders = new HashMap<String, IWidgetScriptProvider>();
 	private final Map<String, IOsgiWebController> webControllers = new HashMap<String, IOsgiWebController>();
+    private final Map<String, TasksListViewBeanFactory> tasksListViews = new HashMap<String, TasksListViewBeanFactory>();
 
-	private String javaScriptContent = "";
+    private String javaScriptContent = "";
 
 	@Autowired
 	private IHtmlTemplateProvider templateProvider;
@@ -213,6 +214,23 @@ public class GuiRegistryImpl implements GuiRegistry {
 	{
 		return decompress(javaScriptContent);
 	}
+
+    @Override
+    public TasksListViewBeanFactory getTasksListView(String viewName) {
+        return tasksListViews.get(viewName);
+    }
+
+    @Override
+    public void registerTasksListView(String viewName, TasksListViewBeanFactory beanFactory) {
+        tasksListViews.put(viewName, beanFactory);
+        logger.info("Registered tasks list view: " + viewName);
+    }
+
+    @Override
+    public void unregisterTasksListView(String viewName) {
+        tasksListViews.remove(viewName);
+        logger.info("Unregistered tasks list view: " + viewName);
+    }
 
 	private static String compress(InputStream stream)
 	{
