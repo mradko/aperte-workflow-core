@@ -126,6 +126,7 @@
 				
 				$.each( queues, function( ) 
 				{
+					console.log();
 					var currentUserLogin = this.userLogin;
 					var userQueueHeaderId = 'accordion-header-'+currentUserLogin;
 					var userQueuesCount = this.activeTasks;
@@ -162,29 +163,37 @@
 					
 					
 					$.each( this.processesList, function( ) 
-					{
-						addProcessRow(this, accordionID, currentUserLogin);
+					{	
+						if ( this.queueId != "user-task-name-activity-created-closed-tasks") {
+							console.log('ProcessList. user-task-name-activity-created-closed-tasks ==? ' + this.queueId);
 						
-						<!-- Test current queue for reload only if changed queue is shown and user is viewing process list -->
-						if(queueViewManager.currentQueue == this.queueName 
-							&& windowManager.currentView == 'process-panel-view'
-							&& queueViewManager.currentOwnerLogin == currentUserLogin)
-						{
-
-							if(oldProcessCount != this.queueSize)
+							addProcessRow(this, accordionID, currentUserLogin);
+							
+							<!-- Test current queue for reload only if changed queue is shown and user is viewing process list -->
+							if(queueViewManager.currentQueue == this.queueName 
+								&& windowManager.currentView == 'process-panel-view'
+								&& queueViewManager.currentOwnerLogin == currentUserLogin)
 							{
-								queueViewManager.reloadCurrentQueue();
-								oldProcessCount = this.queueSize;
+
+								if(oldProcessCount != this.queueSize)
+								{
+									queueViewManager.reloadCurrentQueue();
+									oldProcessCount = this.queueSize;
+								}
 							}
 						}
 					});
 					
 					$.each( this.queuesList, function( ) 
 					{
-						addQueueRow(this, accordionID, currentUserLogin);
+						if ( this.queueId != "user-task-name-activity-created-closed-tasks") {
+							console.log('gueueList. user-task-name-activity-created-closed-tasks ==? ' + this.queueId);
+						
+							addQueueRow(this, accordionID, currentUserLogin);
+						}
 					});
 					
-
+					
 				
 
 				});
