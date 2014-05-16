@@ -51,4 +51,17 @@ public class UserController  implements IOsgiWebController
 
         return result;
     }
+
+    @ControllerMethod(action = "getUserByLogin")
+    public GenericResultBean getUserByLogin(final OsgiWebRequest invocation) {
+        GenericResultBean result = new GenericResultBean();
+
+        String userLogin = invocation.getRequest().getParameter("userLogin");
+
+        UserData user = portalUserSource.getUserByLogin(userLogin);
+
+        result.setData(user);
+
+        return result;
+    }
 }
