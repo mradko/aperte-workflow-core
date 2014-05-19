@@ -149,6 +149,28 @@
 	</portlet>
 
     <portlet>
+        <portlet-name>AperteWorkflow User Substitutions HTML</portlet-name>
+        <display-name>Aperte Workflow Substitutions Manager</display-name>
+        <portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class>
+        <init-param>
+            <name>contextConfigLocation</name>
+            <value>/WEB-INF/spring/substitutionsViewRendererContext.xml</value>
+        </init-param>
+        <init-param>
+            <name>view-jsp</name>
+            <value>substitutions/substitutionsmanager</value>
+        </init-param>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+        </supports>
+        <portlet-info>
+            <title>Aperte Workflow Substitutions Manager</title>
+            <short-title>Aperte Substitutions</short-title>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
 		<portlet-name>Aperte Workflow Plugin Manager</portlet-name>
 		<display-name>Aperte Workflow Plugin Manager</display-name>
         <portlet-class>org.aperteworkflow.util.vaadin.ProcessToolVaadinApplicationPortlet2</portlet-class>
