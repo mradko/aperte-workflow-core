@@ -36,7 +36,7 @@
 		var dataTable = new AperteDataTable("processesTable", 
 			[
 				 { "sName":"name", "bSortable": true ,"bVisible":parsedProcess.name, "mData": function(object){return generateNameColumn(object);}},
-				 { "sName":"step", "bSortable": true ,"bVisible":parsedProcess.step, "mData": "step" },
+				 { "sName":"step", "bSortable": true ,"bVisible":parsedProcess.step, "mData": function(object){if(object.highlight) return '<font color="red">'+object.step+'<span class="glyphicon glyphicon-exclamation-sign" /></font>'; else return object.step;} },
 				 { "sName":"businessStatus", "bSortable": true ,"bVisible":parsedProcess.step, "mData": function(object){return generateStatusColumn(object);}},
 				 { "sName":"code", "bSortable": true ,"bVisible":parsedProcess.code, "mData": "code" },
 				 { "sName":"creator", "bSortable": true ,"bVisible":parsedProcess.creator,"mData": "creator" },
