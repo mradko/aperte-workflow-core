@@ -296,8 +296,8 @@ public class BpmTaskQuery {
         }
 
         if (virtualQueues != null && user != null) {
-            sb.append(from(virtualQueues).select(GET_VIRTUAL_QUEUES).toString(" OR ", " AND (", ")"));
-            queryParameters.add(new QueryParameter("user", user));
+               sb.append(from(virtualQueues).select(GET_VIRTUAL_QUEUES).toString(" OR ", " AND (", ")"));
+               queryParameters.add(new QueryParameter("user", user));
         }
 
         if (queues != null) {
@@ -431,7 +431,7 @@ public class BpmTaskQuery {
             case MY_TASKS:
                 return "(task_.actualowner_id = :user AND task_.status NOT IN ('Completed'))";
             case OWN_IN_PROGRESS:
-                return "(process.creatorLogin = :user AND task_.status NOT IN ('Completed'))";
+                return "(EXISTS(SELECT 1 FROM pt_process_instance_owners powner WHERE powner.process_id = process.id AND owners IN (:user)) AND task_.status NOT IN ('Completed'))";
             case OWN_FINISHED:
                 return "(process.creatorLogin = :user AND task_.actualowner_id = :user AND task_.status IN ('Completed'))";
             default:
