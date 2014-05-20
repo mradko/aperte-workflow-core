@@ -11,12 +11,11 @@
 				<th style="width:10%;"><spring:message code="processes.list.table.process.name" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.step" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.businessStatus" /></th>
-				<th style="width:20%;"><spring:message code="processes.list.table.process.code" /></th>
+				<th style="width:10%;"><spring:message code="processes.list.table.process.code" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.creator" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.assignee" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.creationdate" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.deadline" /></th>
-				<th style="width:15%;"><spring:message code="processes.list.table.process.stepinfo" /></th>
 				<th style="width:10%;"><spring:message code="processes.list.table.process.demandTitle" /></th>
                 <th style="width:10%;"><spring:message code="processes.list.table.process.demandCostsSum" /></th>
 		</thead>
@@ -36,14 +35,13 @@
 		var dataTable = new AperteDataTable("processesTable", 
 			[
 				 { "sName":"name", "bSortable": true ,"bVisible":parsedProcess.name, "mData": function(object){return generateNameColumn(object);}},
-				 { "sName":"step", "bSortable": true ,"bVisible":parsedProcess.step, "mData": "step" },
+				 { "sName":"step", "bSortable": true ,"bVisible":parsedProcess.step, "mData": function(object){if(object.highlight) return '<font color="red">'+object.step+'<span class="glyphicon glyphicon-exclamation-sign" /></font>'; else return object.step;} },
 				 { "sName":"businessStatus", "bSortable": true ,"bVisible":parsedProcess.step, "mData": function(object){return generateStatusColumn(object);}},
 				 { "sName":"code", "bSortable": true ,"bVisible":parsedProcess.code, "mData": "code" },
 				 { "sName":"creator", "bSortable": true ,"bVisible":parsedProcess.creator,"mData": "creator" },
 				 { "sName":"assignee", "bSortable": true ,"bVisible":parsedProcess.assignee,"mData": function(object){return generateAssigneColumn(object);} },
 				 { "sName":"creationDate", "bSortable": true ,"bVisible":parsedProcess.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm:ss');}},
 				 { "sName":"deadline","bVisible":true ,"bVisible":parsedProcess.deadline, "bSortable": true,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}},
-				 { "sName":"stepInfo", "bSortable": true ,"bVisible":parsedProcess.stepInfo, "mData":"stepInfo" },
 				 { "sName":"demandTitle", "bSortable": true ,"bVisible":parsedProcess.demandTitle, "mData":"demandTitle" },
 				 { "sName":"demandCostsSum", "bSortable": true ,"bVisible":parsedProcess.demandCostsSum, "mData":function(object){if(object.demandCostsSum==null)return null; else return object.demandCostsSum.substring(0, 15);} }
 			 ],
