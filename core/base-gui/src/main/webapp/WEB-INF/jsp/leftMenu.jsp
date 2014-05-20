@@ -165,7 +165,6 @@
 					$.each( this.processesList, function( ) 
 					{	
 						if ( this.queueId != "user-task-name-activity-created-closed-tasks") {
-							console.log('ProcessList. user-task-name-activity-created-closed-tasks ==? ' + this.queueId);
 						
 							addProcessRow(this, accordionID, currentUserLogin);
 							
