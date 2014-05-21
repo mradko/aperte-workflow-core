@@ -163,13 +163,12 @@
 		
 		var errors = [];
 		<!-- Validate html widgets -->
-		/*
+		
 		$.each(widgets, function() 
 		{
-			var errorMessages = this.validate();
+			var errorMessages = this.validateDataCorrectness();
 			if(!errorMessages)
 			{
-
 				
 			}
 			else
@@ -180,7 +179,6 @@
 				});
 			}
 	    });
-		*/
 		
 		if(errors.length > 0)
 		{
@@ -189,15 +187,13 @@
 		}
 		
 		var widgetData = [];
-		console.log('1 ');
 		$.each(widgets, function() 
-		{console.log('2 ' + JSON.stringify(this));
+		{
 			var widgetDataBean = new WidgetDataBean(this.widgetId, this.name, this.getData());
 			widgetData.push(widgetDataBean);
 	    });
-		console.log('1 ');
+
 		var JsonWidgetData = JSON.stringify(widgetData, null, 2);
-		
 		var state = 'OK';
 		var newBpmTask = $.post('<portlet:resourceURL id="saveAction"/>',
 		{
