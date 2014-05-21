@@ -9,7 +9,8 @@
         <portlet id="AperteWorkflow Permission Portlet"/>
         <portlet id="AperteWorkflow Demand Registry"/>
         <portlet id="AperteWorkflow Synchronization Portlet"/>
-	</category>
+        <portlet id="AperteWorkflow User Substitutions HTML"/>
+    </category>
     <category name="category.hidden">
         <portlet id="Aperte Workflow Plugin Manager"/>
         <portlet id="AperteWorkflow User Substitutions"/>
