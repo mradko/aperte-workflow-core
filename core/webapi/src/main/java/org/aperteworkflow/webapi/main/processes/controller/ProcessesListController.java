@@ -203,7 +203,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                         }
 
                         I18NSource messageSource = context.getMessageSource();
-                        TasksListViewBean taskViewBean = new TasksListViewBeanFactoryWrapper().createFrom(task, messageSource, viewName);
+                        TasksListViewBean processBean= new TasksListViewBeanFactoryWrapper().createFrom(newTasks.get(0), messageSource, viewName);
 
                         long t4 = System.currentTimeMillis();
 
@@ -214,7 +214,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                                 "[4]: " + (t4 - t3) + "ms "
                         );
 
-                        return taskViewBean;
+                        return processBean;
                     } catch (Throwable ex) {
                         logger.log(Level.SEVERE, ex.getMessage(), ex);
                         resultBean.addError(taskId, ex.getMessage());
