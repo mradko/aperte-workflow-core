@@ -478,7 +478,7 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 	@Override
 	public List<BpmTask> findFilteredTasks(ProcessInstanceFilter filter, int offset, int maxResults) {
-		return getFilterQuery(filter).user(filter.getFilterOwnerLogin()).page(offset, maxResults).list();
+		return getFilterQuery(filter).owners(filter.getOwnerLogins()).user(filter.getFilterOwnerLogin()).page(offset, maxResults).list();
 	}
 
 	private BpmTaskQuery getFilterQuery(ProcessInstanceFilter filter)
@@ -517,6 +517,10 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		if (filter.isUsePrivileges()) {
 			taskFilterQuery.excludeDefinitionIds(getContext().getProcessDefinitionDAO()
 					.getNotPermittedDefinitionIds(ProcessToolBpmConstants.PRIVILEDGE_SEARCH, getRoleNames()));
+		}
+		
+		if (!filter.getOwnerLogins().isEmpty()) {
+			taskFilterQuery.owners(filter.getOwnerLogins());
 		}
 
 		taskFilterQuery.processBpmKey(filter.getProcessBpmKey());

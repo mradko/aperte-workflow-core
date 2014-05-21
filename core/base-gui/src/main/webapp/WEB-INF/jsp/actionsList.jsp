@@ -163,12 +163,12 @@
 		
 		var errors = [];
 		<!-- Validate html widgets -->
+		
 		$.each(widgets, function() 
 		{
-			var errorMessages = this.validate();
+			var errorMessages = this.validateDataCorrectness();
 			if(!errorMessages)
 			{
-
 				
 			}
 			else
@@ -187,15 +187,13 @@
 		}
 		
 		var widgetData = [];
-		
 		$.each(widgets, function() 
 		{
 			var widgetDataBean = new WidgetDataBean(this.widgetId, this.name, this.getData());
 			widgetData.push(widgetDataBean);
 	    });
-		
+
 		var JsonWidgetData = JSON.stringify(widgetData, null, 2);
-		
 		var state = 'OK';
 		var newBpmTask = $.post('<portlet:resourceURL id="saveAction"/>',
 		{

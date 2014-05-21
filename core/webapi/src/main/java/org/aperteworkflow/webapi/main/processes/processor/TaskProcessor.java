@@ -104,7 +104,12 @@ public class TaskProcessor
             results.addAll(widgetDataHandler.handleWidgetData(task, widgetData));
 		}
         ProcessInstance process = task.getProcessInstance();
-
+        
+        String demandMakingPersonLogin = process.getSimpleAttributeValue("demandMakingPersonLogin");
+        if (demandMakingPersonLogin != null) {
+        	process.addOwner(demandMakingPersonLogin);
+        }
+       
         if(!results.isEmpty()) {
             String json = null;
             try {
