@@ -1,4 +1,4 @@
-<%@ page import="org.springframework.web.servlet.support.RequestContextUtils"%>
+﻿<%@ page import="org.springframework.web.servlet.support.RequestContextUtils"%>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -186,7 +186,6 @@
 					$.each( this.queuesList, function( ) 
 					{
 						if ( this.queueId != "user-task-name-activity-created-closed-tasks") {
-							console.log('gueueList. user-task-name-activity-created-closed-tasks ==? ' + this.queueId);
 						
 							addQueueRow(this, accordionID, currentUserLogin);
 						}
@@ -209,11 +208,19 @@
 	{
 		var layoutId = 'queue-view-' + processRow.queueId+'-'+userLogin;
 		var innerDivId = processRow.queueId+'-'+userLogin;
+		var tip = "";
+		
+		if (processRow.queueName === 'activity.created.all.tasks'){
+			tip = 'Zadania, które są przydzielone do mnie i czekają na moją akcję';
+		} else if (processRow.queueName === 'activity.created.tasks'){
+			tip = 'Zadania z procesów stworzonych przeze mnie, przydzielone aktualnie do innych osób, np. w trakcie akceptacji';
+		}
 
 		$( "<li>", { id : layoutId, "class": "list-group-item list-group-item-left-menu", "data-queue-name": processRow.queueName, "data-user-login" : userLogin, "data-queue-type" : "process", "data-queue-desc" : processRow.queueDesc} )
 		.appendTo( '#'+accordionID );
 		
 		$(document).ready(function () {
+			$('[name="tooltip"]').tooltip();
 			$("#"+layoutId).on("click", function () {
 				showQueue( 
 						$(this).attr('data-queue-name'),
@@ -223,13 +230,11 @@
 			});
 		});
 		
-		
-		
 		$( "<span>", { "class": "badge badge-queue-link", text: processRow.queueSize} )
 		.appendTo( '#'+layoutId  );
-		$( "<div>", { id : 'link-'+processRow.queueId+'-'+accordionID, "class": "queue-list-link", text: processRow.queueDesc } )
+		$( "<div>", { id : 'link-'+processRow.queueId+'-'+accordionID, "name": "tooltip", "title": tip, "class": "queue-list-link", text: processRow.queueDesc } )
 		.appendTo( '#'+layoutId );
-		
+		$('[name="tooltip"]').tooltip();
 
 	}
 
@@ -237,6 +242,7 @@
 	{
 		var layoutId = 'queue-view-' + queueRow.queueId+'-'+userLogin;
 		var innerDivId = queueRow.queueId+'-'+userLogin;
+		
 
 		$( "<li>", { id : layoutId, "class": "list-group-item list-group-item-left-menu", "data-queue-name": queueRow.queueName, "data-user-login" : userLogin, "data-queue-type" : "queue", "data-queue-desc" : queueRow.queueDesc} )
 		.appendTo( '#'+accordionID );
