@@ -126,7 +126,6 @@
 				
 				$.each( queues, function( ) 
 				{
-					console.log();
 					var currentUserLogin = this.userLogin;
 					var userQueueHeaderId = 'accordion-header-'+currentUserLogin;
 					var userQueuesCount = this.activeTasks;
