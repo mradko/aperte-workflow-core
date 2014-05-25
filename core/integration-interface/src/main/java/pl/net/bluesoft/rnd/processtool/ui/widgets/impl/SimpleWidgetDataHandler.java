@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.*;

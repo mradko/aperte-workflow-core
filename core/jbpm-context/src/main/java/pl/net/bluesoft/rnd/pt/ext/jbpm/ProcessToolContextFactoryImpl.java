@@ -164,16 +164,20 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
                 try {
                     //throw new RuntimeException();
                     tx.commit();
-                } catch (Exception ex) {
+                } catch (Throwable ex) {
                     /* Hardcore fix //TODO change */
                     logger.severe("Ksession problem, retry: "+reload);
                     if (reload) {
                         reloadJbpm();
                         executeWithProcessToolContextNonJta(callback,false);
                     }
+                    else
+                    {
+                        throw ex;
+                    }
                 }
             }
-            catch (RuntimeException e)
+            catch (Throwable e)
             {
                 logger.log(Level.SEVERE, e.getMessage(), e);
                 try {
@@ -182,7 +186,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
                 catch (Exception e1) {
                     logger.log(Level.WARNING, e1.getMessage(), e1);
                 }
-                throw e;
+                throw new RuntimeException(e);
             }
             finally
             {

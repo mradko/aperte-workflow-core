@@ -361,11 +361,25 @@
 			<!-- Validate html widgets -->
 			$.each(widgets, function() 
 			{
-				var errorMessages = this.validate();
-				$.each(errorMessages, function() {
-					errors.push(this);
-					addAlert(this);
-				});
+				<!-- Validate technical correctness -->
+                var errorMessages = this.validateDataCorrectness();
+				if(errorMessages)
+				{
+					$.each(errorMessages, function() {
+						errors.push(this);
+						addAlert(this);
+					});
+				}
+
+                <!-- Validate business correctness -->
+				errorMessages = this.validate();
+				if(errorMessages)
+				{
+					$.each(errorMessages, function() {
+						errors.push(this);
+						addAlert(this);
+					});
+				}
 			});
 			
 			if(errors.length > 0)

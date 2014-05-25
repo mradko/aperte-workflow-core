@@ -73,7 +73,7 @@ public class ProcessInstanceSimpleAttribute extends AbstractProcessInstanceAttri
 	}
 
 	public void setValue(String value) {
-		this.value = value;
+		this.value = value == null ? "" : value.replace("\\", "");
 	}
 
     @Override

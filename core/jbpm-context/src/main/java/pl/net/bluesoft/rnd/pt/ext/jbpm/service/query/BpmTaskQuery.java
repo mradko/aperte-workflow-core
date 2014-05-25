@@ -291,7 +291,7 @@ public class BpmTaskQuery {
         sb.append(" WHERE 1=1");
 
         if (owners != null) {
-            sb.append(" AND EXISTS(SELECT 1 FROM pt_process_instance_owners powner WHERE powner.process_id = process.id AND :owners IN (:owners))");
+            sb.append(" AND EXISTS(SELECT 1 FROM pt_process_instance_owners powner WHERE powner.process_id = process.id AND powner.owners IN (:owners))");
             queryParameters.add(new QueryParameter("owners", owners));
         }
 
@@ -431,7 +431,7 @@ public class BpmTaskQuery {
             case MY_TASKS:
                 return "(task_.actualowner_id = :user AND task_.status NOT IN ('Completed'))";
             case OWN_IN_PROGRESS:
-                return "(EXISTS(SELECT 1 FROM pt_process_instance_owners powner WHERE powner.process_id = process.id AND owners IN (:user)) AND task_.status NOT IN ('Completed'))";
+                return "(EXISTS(SELECT 1 FROM pt_process_instance_owners powner WHERE powner.process_id = process.id AND owners IN (:user)) AND task_.status NOT IN ('Completed') AND (task_.actualowner_id != 'test' OR task_.actualowner_id is null))";
             case OWN_FINISHED:
                 return "(process.creatorLogin = :user AND task_.actualowner_id = :user AND task_.status IN ('Completed'))";
             default:

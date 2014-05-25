@@ -295,56 +295,62 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 		} 
 		
 		long t1 = System.currentTimeMillis();
-
-        try
-        {
-                getProcessToolRegistry().withProcessToolContext(new ProcessToolContextCallback() {
+        try {
+            getProcessToolRegistry().withProcessToolContext(new ProcessToolContextCallback() {
 
                 @Override
                 public void withContext(ProcessToolContext ctx) {
-                    long t0 = System.currentTimeMillis();
+                    try {
+                        long t0 = System.currentTimeMillis();
 
-                    BpmTask task = context.getBpmSession().getTaskData(taskId);
+                        BpmTask task = context.getBpmSession().getTaskData(taskId);
 
-                    long t1 = System.currentTimeMillis();
+                        long t1 = System.currentTimeMillis();
 
-                    TaskProcessor taskSaveProcessor = new TaskProcessor(task, getEventBus(), context.getMessageSource(), widgetData);
+                        TaskProcessor taskSaveProcessor = new TaskProcessor(task, getEventBus(), context.getMessageSource(), widgetData);
 
-                    long t2 = System.currentTimeMillis();
+                        long t2 = System.currentTimeMillis();
 
                         /* Validate widgets */
-                    ValidateResultBean widgetsValidationResult = taskSaveProcessor.validateWidgets();
+                        ValidateResultBean widgetsValidationResult = taskSaveProcessor.validateWidgets();
 
-                    long t3 = System.currentTimeMillis();
+                        long t3 = System.currentTimeMillis();
 
-                    if (widgetsValidationResult.hasErrors()) {
+                        if (widgetsValidationResult.hasErrors()) {
                             /* Copy all errors from event */
-                        for (ErrorResultBean errorBean : widgetsValidationResult.getErrors())
-                            resultBean.addError(errorBean);
-                    }
-                        /* No validation errors, save widgets */
-                    else {
-                        SaveResultBean widgetsSaveResult = taskSaveProcessor.saveWidgets();
-
-                        if (widgetsSaveResult.hasErrors()) {
-                                /* Copy all errors from event */
-                            for (ErrorResultBean errorBean : widgetsSaveResult.getErrors())
+                            for (ErrorResultBean errorBean : widgetsValidationResult.getErrors())
                                 resultBean.addError(errorBean);
                         }
+                        /* No validation errors, save widgets */
+                        else {
+                            SaveResultBean widgetsSaveResult = taskSaveProcessor.saveWidgets();
 
+                            if (widgetsSaveResult.hasErrors()) {
+                                /* Copy all errors from event */
+                                for (ErrorResultBean errorBean : widgetsSaveResult.getErrors())
+                                    resultBean.addError(errorBean);
+                            }
+
+                        }
+
+                        long t4 = System.currentTimeMillis();
+
+                        logger.log(Level.INFO, "saveAction.withContext total: " + (t4 - t0) + "ms, " +
+                                        "[1]: " + (t1 - t0) + "ms, " +
+                                        "[2]: " + (t2 - t1) + "ms, " +
+                                        "[3]: " + (t3 - t2) + "ms, " +
+                                        "[4]: " + (t4 - t3) + "ms "
+                        );
+                    } catch (Throwable e) {
+                        logger.log(Level.SEVERE, "Problem during data saving", e);
+                        resultBean.addError(SYSTEM_SOURCE, context.getMessageSource().getMessage(
+                                "request.handle.error.saveerror",
+                                "Problem during data saving: {0}",
+                                e.getLocalizedMessage()));
                     }
-
-                    long t4 = System.currentTimeMillis();
-
-                    logger.log(Level.INFO, "saveAction.withContext total: " + (t4 - t0) + "ms, " +
-                            "[1]: " + (t1 - t0) + "ms, " +
-                            "[2]: " + (t2 - t1) + "ms, " +
-                            "[3]: " + (t3 - t2) + "ms, " +
-                            "[4]: " + (t4 - t3) + "ms "
-                    );
                 }
-            }, ExecutionType.TRANSACTION_SYNCH);
 
+            }, ExecutionType.TRANSACTION_SYNCH);
         }
         catch(Throwable e)
         {
