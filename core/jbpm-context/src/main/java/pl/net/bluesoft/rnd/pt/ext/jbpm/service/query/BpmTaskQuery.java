@@ -291,7 +291,7 @@ public class BpmTaskQuery {
         sb.append(" WHERE 1=1");
 
         if (owners != null) {
-            sb.append(" AND EXISTS(SELECT 1 FROM pt_process_instance_owners powner WHERE powner.process_id = process.id AND owners IN (:owners))");
+            sb.append(" AND EXISTS(SELECT 1 FROM pt_process_instance_owners powner WHERE powner.process_id = process.id AND :owners IN (:owners))");
             queryParameters.add(new QueryParameter("owners", owners));
         }
 
