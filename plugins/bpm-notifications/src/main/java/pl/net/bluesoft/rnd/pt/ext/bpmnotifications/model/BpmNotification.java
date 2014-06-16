@@ -44,7 +44,7 @@ public class BpmNotification extends PersistentEntity
     private String profileName;
     
     /** Send message after specific hour */
-    private Date sendAfterHour;
+    private int sendAfterHour;
     
     private boolean groupNotifications;
 
@@ -134,11 +134,11 @@ public class BpmNotification extends PersistentEntity
 		this.profileName = profileName;
 	}
 
-	public Date getSendAfterHour() {
+	public int getSendAfterHour() {
 		return sendAfterHour;
 	}
 
-	public void setSendAfterHour(Date sendAfterHour) {
+	public void setSendAfterHour(int sendAfterHour) {
 		this.sendAfterHour = sendAfterHour;
 	}
 }

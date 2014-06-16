@@ -32,6 +32,7 @@ import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.di.annotations.AutoInject;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
+import pl.net.bluesoft.rnd.processtool.model.UserAttribute;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.template.ProcessToolTemplateErrorException;
@@ -67,8 +68,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
     private static final String SUBJECT_TEMPLATE_SUFFIX = "_subject";
     private static final String SENDER_TEMPLATE_SUFFIX = "_sender";
     private static final String DEFAULT_PROFILE_NAME = "Default";
-    private static final String REFRESH_INTERVAL = "mail.settings.refresh.interval";
-    
+
     /** Mail body encoding */
     private static final String MAIL_ENCODING = "UTF-8";
     
@@ -170,7 +170,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
 	    	Collection<BpmNotification> notificationsToSend = NotificationsFacade.getNotificationsToSend();
 	    	
 	    	/* Get all notifications waiting to be sent */
-	    	Collection<BpmNotification> notificationsToSendForGrouping = NotificationsFacade.getNotificationsForGrouping();
+	    	Collection<BpmNotification> notificationsToSendForGrouping = NotificationsFacade.getNotificationsForGrouping(30000);
 	    	notificationsToSend.addAll(notificationsToSendForGrouping);
 	    	
 	    	logger.info("[NOTIFICATIONS JOB] "+notificationsToSend.size()+" notifications waiting to be sent...");
@@ -213,7 +213,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
 	    			sendNotification(notification);
 	    			
 	    			/* Notification was sent, so remove it from te queue */
-	    			//NotificationsFacade.removeNotification(notification);
+	    			NotificationsFacade.removeNotification(notification);
 	    		}
 	    		catch(ConnectException ex)
 	    		{
@@ -469,35 +469,22 @@ public class BpmNotificationEngine implements IBpmNotificationService
         notification.setRecipient(processedNotificationData.getRecipient().getEmail());
         notification.setSendAsHtml(processedNotificationData.isSendAsHtml());
         notification.setProfileName(processedNotificationData.getProfileName());
-        String isGroup = null;
-        
-        try
-        {
+        Boolean isGroup = null;
 
-        	isGroup = processedNotificationData.getRecipient().getAttribute(messageSource.getMessage("bpmnot.notify.liferay.groupingCheckbox")).toString();
-        
-        }
-        catch(Exception e)
-        {
-        	logger.log(Level.SEVERE, "Add custom field true/false for grouping notifications. Property: bpmnot.notify.liferay.groupingCheckbox=key");
-        }
-        
-        if(isGroup == null){
-        	notification.setGroupNotifications(false);
-        }
-        
+        isGroup = (Boolean)processedNotificationData.getRecipient().getAttribute("aperte-delay-emails");
+
+        if(isGroup == null)
+            logger.log(Level.SEVERE, "Add custom field true/false for grouping notifications. Property: bpmnot.notify.liferay.groupingCheckbox=key");
+
+        notification.setGroupNotifications(isGroup);
+
         if (notification.isGroupNotifications()){
-        	Date d = (Date)processedNotificationData.getRecipient().getAttribute(messageSource.getMessage("bpmnot.notify.liferay.groupingSendHour"));
-        	Calendar cal = Calendar.getInstance();
-    		cal.set(Calendar.SECOND, d.getSeconds());
-    		cal.set(Calendar.HOUR_OF_DAY, d.getHours());
-    		cal.set(Calendar.MINUTE, d.getMinutes());
-    		
-    		//int time = cal.get(Calendar.HOUR_OF_DAY) * 3600 + cal.get(Calendar.MINUTE) * 60 + cal.get(Calendar.SECOND);
-	        
-	        notification.setSendAfterHour(cal.getTime());
+            Date d = (Date)processedNotificationData.getRecipient().getAttribute("aperte-delay-wait-until");
+            int time = 1000*((d.getHours()) * 3600 + d.getMinutes() * 60 + d.getSeconds());
+
+	        notification.setSendAfterHour(time);
         }
-       
+
         StringBuilder attachmentsString = new StringBuilder();
         int attachmentsSize = processedNotificationData.getAttachments().size();
         for(String attachment: processedNotificationData.getAttachments())

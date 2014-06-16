@@ -1,9 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade;
 
-import java.util.Date;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import org.hibernate.LockMode;
 import org.hibernate.Session;
@@ -28,24 +25,23 @@ public class NotificationsFacade
 	{			
 		return (List<BpmNotification>)getSession()
 				.createCriteria(BpmNotification.class)
-				.add(Restrictions.or(Restrictions.isNull("sendAfterHour"), Restrictions.le("sendAfterHour", new Date())))
-				.add(Restrictions.or(Restrictions.isNull("sendAfterHour"), Restrictions.geProperty("sendAfterHour", "notificationCreated")))
+				.add(Restrictions.eq("groupNotifications", false))
 				.setLockMode(LockMode.UPGRADE_NOWAIT)
 				.addOrder(Order.asc("recipient"))
 				.list();
 	}
 	
 	/** Get all notifications waiting to be sent for grouping */
-	public static Collection<BpmNotification> getNotificationsForGrouping()
-	{	
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DAY_OF_MONTH, -1);
-		Date d = cal.getTime();
-		
+	public static Collection<BpmNotification> getNotificationsForGrouping(int interval)
+	{
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        int time = 1000*(c.get(Calendar.HOUR_OF_DAY) * 3600 + c.get(Calendar.MINUTE) * 60 + c.get(Calendar.SECOND));
+
 		return (List<BpmNotification>)getSession()
 				.createCriteria(BpmNotification.class)
-				.add(Restrictions.or(Restrictions.isNull("sendAfterHour"), Restrictions.le("sendAfterHour", new Date())))
-				.add(Restrictions.or(Restrictions.isNull("sendAfterHour"), Restrictions.le("sendAfterHour", d)))
+                .add(Restrictions.eq("groupNotifications", true))
+				.add(Restrictions.le("sendAfterHour", time+interval))
+                .add(Restrictions.ge("sendAfterHour", time-interval))
 				.setLockMode(LockMode.UPGRADE_NOWAIT)
 				.addOrder(Order.asc("recipient"))
 				.list();
@@ -54,10 +50,10 @@ public class NotificationsFacade
 	public static Collection<BpmNotificationMailProperties> getNotificationMailProperties()
 	{
 		Session session = getSession();
-		
+
 		return session.createCriteria(BpmNotificationMailProperties.class).list();
 	}
-	
+
 	/** Saves given notifications to database */
 	public static void addNotificationToBeSent(BpmNotification notification)
 	{
