@@ -5,6 +5,7 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <%@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
 
+
 <div class="navbar left-menu" >
 	<nav id="mobile-collapse" class="navbar navbar-default left-menu" role="navigation">
 
@@ -22,7 +23,7 @@
 				<button  type="button" class="btn btn-success" id="process-start-button" onClick="windowManager.showNewProcessPanel();">
 					<i class="icon-briefcase icon-white" ></i><spring:message code="processes.start.new.process" />
 				</button >
-				<button  type="button" class="btn btn-default" id="show-search-view-button" onClick="windowManager.showSearchProcessPanel();">
+				<button  type="button" class="btn btn-default" id="show-search-view-button" onClick="window.open('${casePortletUrl}')">
 					<i class="icon-search icon-white" ></i><spring:message code="processes.search.process" />
 				</button >
 				<button type="button" class="btn btn-default"  id="show-configuration-view-button" onClick="windowManager.showConfiguration();">

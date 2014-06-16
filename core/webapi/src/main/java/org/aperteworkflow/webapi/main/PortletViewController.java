@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.portlet.ModelAndView;
 import org.springframework.web.portlet.bind.annotation.RenderMapping;
 import org.springframework.web.portlet.bind.annotation.ResourceMapping;
+import pl.net.bluesoft.rnd.processtool.ISettingsProvider;
 
 import javax.portlet.*;
 import javax.servlet.ServletException;
@@ -34,6 +35,7 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
 {
     private static final String PORTLET_JSON_RESULT_ROOT_NAME = "result";
     private static final String PORTLET_PARAMTER_TASK_ID = "taskId";
+    private static final String CASE_PORTLET_URL = "casePortletUrl";
 
     private static Logger logger = Logger.getLogger(PortletViewController.class.getName());
     private Map<String, Object> viewData = new HashMap<String, Object>();
@@ -50,6 +52,9 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
 
     @Autowired(required = false)
     private ProcessesListController processesListController;
+
+    @Autowired(required = false)
+    private ISettingsProvider settingsProvider;
 
 
     @RenderMapping()
@@ -70,6 +75,8 @@ public class PortletViewController extends AbstractMainController<ModelAndView>
             Long taskId = Long.parseLong(showTaskId);
             modelView.addObject(EXTERNAL_TASK_ID, taskId);
         }
+
+        modelView.addObject(CASE_PORTLET_URL, settingsProvider.getSetting("case.portlet.url"));
 
         processRequest(modelView, httpServletRequest);
 
