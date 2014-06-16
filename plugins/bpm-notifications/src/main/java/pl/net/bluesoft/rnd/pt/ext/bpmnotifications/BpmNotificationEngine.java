@@ -192,17 +192,14 @@ public class BpmNotificationEngine implements IBpmNotificationService
 		    			groupedNotif.setBody(body);
 		    			
 		    			notificationsToSendMap.put(groupedNotif.getRecipient(), groupedNotif);
-		    			NotificationsFacade.removeNotification(notification);
 	    			}
 	    			else{
 	    				notification.setBody(notification.getSubject());
 	    				notificationsToSendMap.put(notification.getRecipient(), notification);
-	    				NotificationsFacade.removeNotification(notification);
 	    			}
 	    		}
 	    		else{
 	    			notificationsToSendMap.put(Long.toString(notification.getNotificationCreated().getTime()), notification);
-	    			NotificationsFacade.removeNotification(notification);
 	    		}
 	    	}
 	    	
