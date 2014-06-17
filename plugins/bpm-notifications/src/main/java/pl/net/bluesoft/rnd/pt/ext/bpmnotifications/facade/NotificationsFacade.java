@@ -26,7 +26,6 @@ public class NotificationsFacade
 		return (List<BpmNotification>)getSession()
 				.createCriteria(BpmNotification.class)
 				.add(Restrictions.eq("groupNotifications", false))
-				.setLockMode(LockMode.UPGRADE_NOWAIT)
 				.addOrder(Order.asc("recipient"))
 				.list();
 	}
@@ -42,7 +41,6 @@ public class NotificationsFacade
                 .add(Restrictions.eq("groupNotifications", true))
 				.add(Restrictions.le("sendAfterHour", time+interval))
                 .add(Restrictions.ge("sendAfterHour", time-interval))
-				.setLockMode(LockMode.UPGRADE_NOWAIT)
 				.addOrder(Order.asc("recipient"))
 				.list();
 	}
@@ -67,7 +65,6 @@ public class NotificationsFacade
 		Session session = getSession();
 		
 		session.delete(notification);
-		
 	}
 	
 	private static Session getSession()
