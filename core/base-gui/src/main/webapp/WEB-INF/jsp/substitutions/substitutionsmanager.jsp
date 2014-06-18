@@ -348,7 +348,7 @@
 												out += '<button class="btn btn-mini" onclick="editSubstitution('+o.id+','+o.dateFrom+','+o.dateTo+',\''+o.userLogin+'\',\''+o.userSubstituteLogin+'\')" data-toggle="modal" data-target="#NewSubstitutionModal">';
 												out += '<i class="glyphicon glyphicon-edit"></i></button>';
                                                 </c:if>
-                                                if('${aperteUser.login}'==o.userLogin){
+                                                if('${aperteUser.login}'==o.userLogin || '${aperteUser.login}'==o.userSubstituteLogin){
                                                     out += '<button class="btn btn-danger btn-mini" onclick="removeSubstitution('+o.id+')">';
                                                     out += '<i class="glyphicon glyphicon-trash"></i></button>';
 												}
