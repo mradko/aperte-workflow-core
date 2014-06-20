@@ -45,31 +45,31 @@
    <!-- ================ -->
 
    <category name="org.infinispan">
-      <priority value="INFO"/>
+      <priority value="WARNING"/>
    </category>
 
    <category name="org.infinispan.profiling">
-      <priority value="WARN"/>
+      <priority value="WARNING"/>
    </category>
 
    <category name="org.infinispan.jmx">
-      <priority value="WARN"/>
+      <priority value="WARNING"/>
    </category>
 
    <category name="org.infinispan.factories">
-      <priority value="WARN"/>
+      <priority value="WARNING"/>
    </category>
 
    <category name="org.infinispan.client.hotrod">
-      <priority value="WARN"/>
+      <priority value="WARNING"/>
    </category>
 
    <category name="com.mchange">
-      <priority value="WARN"/>
+      <priority value="WARNING"/>
    </category>
 
    <category name="org.jgroups">
-      <priority value="WARN"/>
+      <priority value="WARNING"/>
    </category>
 
    <!-- ======================= -->
