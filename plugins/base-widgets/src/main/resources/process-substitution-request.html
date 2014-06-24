@@ -167,17 +167,20 @@
 			$('#warning').show();
 			errors.push('${messageSource.getMessage("substituting.date.to.empty")}');
 		}
-		else if(new Date(substitutingDateTo).setHours(0,0,0,0) < (new Date()).setHours(0,0,0,0))
+		else
 		{
-            $('#warning').show();
-            errors.push('${messageSource.getMessage("substituting.date.to.past")}');
-        }
+		    if(new Date(substitutingDateTo).setHours(0,0,0,0) < (new Date()).setHours(0,0,0,0))
+		    {
+                $('#warning').show();
+                errors.push('${messageSource.getMessage("substituting.date.to.past")}');
+            }
 
-        if(substitutingDateTo && substitutingDateFrom && (new Date(substitutingDateTo).setHours(0,0,0,0) < (new Date(substitutingDateFrom)).setHours(0,0,0,0)))
-		{
-			$('#warning').show();
-			errors.push('${messageSource.getMessage("substituting.date.fromto.lesser")}');
-		}
+            if(substitutingDateTo && substitutingDateFrom && (new Date(substitutingDateTo).setHours(0,0,0,0) < (new Date(substitutingDateFrom)).setHours(0,0,0,0)))
+            {
+                $('#warning').show();
+                errors.push('${messageSource.getMessage("substituting.date.fromto.lesser")}');
+            }
+        }
 
 		return errors;
 	}
