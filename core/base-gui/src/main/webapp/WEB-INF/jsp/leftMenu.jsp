@@ -26,9 +26,9 @@
 				<button  type="button" class="btn btn-default" id="show-search-view-button" onClick="window.open('${casePortletUrl}')">
 					<i class="icon-search icon-white" ></i><spring:message code="processes.search.process" />
 				</button >
-				<button type="button" class="btn btn-default"  id="show-configuration-view-button" onClick="windowManager.showConfiguration();">
+				<!--button type="button" class="btn btn-default"  id="show-configuration-view-button" onClick="windowManager.showConfiguration();">
 					<i class="icon-wrench icon-white" ></i><spring:message code="processes.show.configuration" />
-				</button>
+				</button-->
 			</div>
 			<br>
 			<div id="inner-queues">
