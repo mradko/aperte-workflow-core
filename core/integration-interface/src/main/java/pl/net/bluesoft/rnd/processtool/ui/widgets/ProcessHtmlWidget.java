@@ -12,7 +12,6 @@ import pl.net.bluesoft.rnd.util.AnnotationUtil;
 
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.Map;
 
 /**
  * Widget in-memory model
@@ -140,8 +139,5 @@ public class ProcessHtmlWidget extends BaseProcessToolWidget
     public boolean hasContnet()
     {
         return contentProvider != null;
-    }
-
-    public void getViewData(Map<String, Object> viewData) {
     }
 }

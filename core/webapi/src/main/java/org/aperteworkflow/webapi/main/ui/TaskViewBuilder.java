@@ -10,7 +10,6 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.filters.factory.QueuesNameUtil;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.*;
@@ -34,25 +33,20 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
  * @author mpawlak@bluesoft.net.pl
  *
  */
-public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
+public class TaskViewBuilder 
 {
 	private BpmTask task;
+	private List<ProcessStateWidget> widgets;
     private List<ProcessStateAction> actions;
     private String version;
     private String  description;
-
-    @Override
-    protected IAttributesProvider getViewedObject() {
-        return this.task;
-    }
-
-    @Override
-    protected void buildAdditionalData(final Document document) {
-        addVersionNumber(document);
-    }
-
-
-    @Autowired
+	private I18NSource i18Source;
+	private UserData user;
+    private ProcessToolContext ctx;
+    private ProcessToolBpmSession bpmSession;
+    private Collection<String> userQueues;
+	
+	@Autowired
 	private ProcessToolRegistry processToolRegistry;
 	
 	@Autowired
@@ -85,7 +79,7 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
 				.attr("class", "vaadin-widgets-view");
 		document.appendChild(widgetsNode);
 
-		for(IStateWidget widget: widgets)
+		for(ProcessStateWidget widget: widgets)
 		{
             WidgetHierarchyBean childBean = new WidgetHierarchyBean()
                     .setParent(widgetsNode)
@@ -119,21 +113,6 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
         document.appendChild(versionNumber);
 
         versionNumber.append(description + " v. " + version);
-    }
-
-
-    @Override
-    protected void buildSpecificActionButtons(final Element specificActionButtons) {
-        /* Check if task is from queue */
-        if (isTaskHasNoOwner() && hasUserRightsToTask()) {
-            addClaimActionButton(specificActionButtons);
-        }
-
-        /* Check if user, who is checking the task, is the assigned person */
-        if (isUserAssignedToTask() || isSubstitutingUser()) {
-            for (ProcessStateAction action : actions)
-                processAction(action, specificActionButtons);
-        }
     }
 
     /** Add actions buttons compared to user privileges and process state */
@@ -187,7 +166,7 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
 	
 	private void processWidget(WidgetHierarchyBean widgetHierarchyBean)
 	{
-        IStateWidget widget = widgetHierarchyBean.getWidget();
+        ProcessStateWidget widget = widgetHierarchyBean.getWidget();
         ProcessInstance processInstance = widgetHierarchyBean.getProcessInstance();
         Element parent =  widgetHierarchyBean.getParent();
 
@@ -196,10 +175,10 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
         ProcessHtmlWidget processHtmlWidget = processToolRegistry.getGuiRegistry().getHtmlWidget(aliasName);
 		
 		/* Sort widgets by prority */
-		List<IStateWidget> children = new ArrayList<IStateWidget>(widget.getChildren());
-		Collections.sort(children, new Comparator<IStateWidget>() {
+		List<ProcessStateWidget> children = new ArrayList<ProcessStateWidget>(widget.getChildren());
+		Collections.sort(children, new Comparator<ProcessStateWidget>() {
 			@Override
-			public int compare(IStateWidget widget1, IStateWidget widget2) {
+			public int compare(ProcessStateWidget widget1, ProcessStateWidget widget2) {
 				return widget1.getPriority().compareTo(widget2.getPriority());
 			}
 		});
@@ -209,10 +188,10 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
 
         if(aliasName.equals("ShadowStateWidget"))
         {
-             IStateWidgetAttribute processStateConfigurationIdAttribute =
+             ProcessStateWidgetAttribute processStateConfigurationIdAttribute =
                      widget.getAttributeByName("processStateConfigurationId");
 
-            IStateWidgetAttribute forcePrivilegesAttribute =
+            ProcessStateWidgetAttribute forcePrivilegesAttribute =
                     widget.getAttributeByName("forcePrivileges");
 
             Boolean forcePrivileges = Boolean.parseBoolean(forcePrivilegesAttribute.getValue());
@@ -261,11 +240,11 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
 			
 			boolean isFirst = true;
 
-			for(IStateWidget child: children)
+			for(ProcessStateWidget child: children)
 			{
 				String caption = aliasName;
 				/* Set caption from attributes */
-                IStateWidgetAttribute attribute = child.getAttributeByName("caption");
+				ProcessStateWidgetAttribute attribute = child.getAttributeByName("caption");
 				if(attribute != null)
 					caption = i18Source.getMessage(attribute.getValue());
 				
@@ -312,7 +291,7 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
 				.attr("id", "vertical_layout"+widget.getId());
 			parent.appendChild(divContentNode);
 			
-			for(IStateWidget child: children)
+			for(ProcessStateWidget child: children)
 			{
                 WidgetHierarchyBean childBean = new WidgetHierarchyBean()
                         .setParent(divContentNode)
@@ -325,9 +304,9 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
 			}
 		}
 		else if(aliasName.equals("SwitchWidgets")){
-			List<IStateWidget> sortedList = new ArrayList<IStateWidget>(children);
+			List<ProcessStateWidget> sortedList = new ArrayList<ProcessStateWidget>(children);
 			
-			IStateWidget filteredChild = filterChildren(task, sortedList, widget);
+			ProcessStateWidget filteredChild = filterChildren(task, sortedList, widget);
 
 			if (filteredChild != null) {
 				Element divContentNode = parent.ownerDocument().createElement("div")
@@ -365,7 +344,7 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
             viewData.put(IHtmlTemplateProvider.DICTIONARIES_DAO_PARAMETER, ctx.getProcessDictionaryDAO());
             viewData.put(IHtmlTemplateProvider.BPM_SESSION_PARAMETER, bpmSession);
 
-            for(IStateWidgetAttribute attribute: widget.getAttributes())
+            for(ProcessStateWidgetAttribute attribute: widget.getAttributes())
                 viewData.put(attribute.getName(), attribute.getValue());
 
             /* Add custom attributes from widget data providers */
@@ -380,7 +359,7 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
 					.attr("id", "html-"+widget.getId());
 				parent.appendChild(divContentNode);
 
-			for(IStateWidget child: children)
+			for(ProcessStateWidget child: children)
 			{
                 WidgetHierarchyBean childBean = new WidgetHierarchyBean()
                         .setParent(divContentNode)
@@ -412,7 +391,7 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
 			
 			scriptBuilder.append("$('#iframe-vaadin-").append(widget.getId()).append("').load(function() {onLoadIFrame($(this)); });");
 
-			for(IStateWidget child: children)
+			for(ProcessStateWidget child: children)
 			{
                 WidgetHierarchyBean childBean = new WidgetHierarchyBean()
                         .setParent(iFrameNode)
@@ -428,17 +407,17 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
 
     private static class WidgetHierarchyBean
     {
-        private IStateWidget widget;
+        private ProcessStateWidget widget;
         private Element parent;
         private ProcessInstance processInstance;
         private boolean forcePrivileges;
         private Collection<String> privileges;
 
-        public IStateWidget getWidget() {
+        public ProcessStateWidget getWidget() {
             return widget;
         }
 
-        public WidgetHierarchyBean setWidget(IStateWidget widget) {
+        public WidgetHierarchyBean setWidget(ProcessStateWidget widget) {
             this.widget = widget;
             return this;
         }
@@ -496,19 +475,7 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
         return privileges;
     }
 
-    @Override
-    protected void addSpecificHtmlWidgetData(final Map<String, Object> viewData, final IAttributesProvider viewedObject) {
-        viewData.put(IHtmlTemplateProvider.PROCESS_PARAMTER, viewedObject.getProcessInstance());
-        viewData.put(IHtmlTemplateProvider.TASK_PARAMTER, task);
-    }
-
-    @Override
-    protected boolean isUserAssignedToViewedObject() {
-        return isUserAssignedToTask();
-    }
-
-
-    private void processAction(ProcessStateAction action, Element parent)
+	private void processAction(ProcessStateAction action, Element parent)
 	{
 
 		String actionButtonId = "action-button-" + action.getBpmName();
@@ -636,6 +603,12 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
                 .append("').tooltip({title: '").append(i18Source.getMessage("button.claim.descrition")).append("'});");
     }
 
+	public TaskViewBuilder setWidgets(List<ProcessStateWidget> widgets) 
+	{
+		this.widgets = widgets;
+		return this;
+	}
+
 	public TaskViewBuilder setActions(List<ProcessStateAction> actions) 
 	{
 		this.actions = actions;
@@ -678,6 +651,25 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
         this.ctx = ctx;
         return this;
     }
+
+    public ProcessStateWidget filterChildren(BpmTask task, List<ProcessStateWidget> sortedList, ProcessStateWidget psw) {
+    	String selectorKey = psw.getAttributeByName("selectorKey").getValue();
+    	String conditions = psw.getAttributeByName("conditions").getValue();
+		String selectorValue = task.getProcessInstance().getInheritedSimpleAttributeValue(selectorKey);
+
+		if(!hasText(selectorValue)) {
+			return null;
+		}
+		
+		String[] conditionsArray = conditions.split("[,; ]+");
+
+		for (int i = 0; i < conditionsArray.length; i++) {
+			if (selectorValue.equals(conditionsArray[i].trim())) {
+				return i < sortedList.size() ? sortedList.get(i) : null;
+			}
+		}
+		return null;
+	}
     
     public TaskViewBuilder setBpmSession(ProcessToolBpmSession bpmSession) {
     	this.bpmSession = bpmSession;
@@ -711,79 +703,4 @@ public class TaskViewBuilder extends AbstractViewBuilder<TaskViewBuilder>
         return user.getLogin().equals(task.getAssignee());
     }
 
-    @Override
-    protected TaskViewBuilder getThis() {
-        return this;
-    }
-
-
-    @Override
-    protected String getViewedObjectId() {
-        return this.task.getInternalTaskId();
-    }
-
-    @Override
-    protected boolean isViewedObjectClosed() {
-        return isTaskFinished();
-    }
-
-    @Override
-    protected String getSaveButtonMessageKey() {
-        return "button.save.process.data";
-    }
-
-    @Override
-    protected String getSaveButtonDescriptionKey() {
-        return "button.save.process.desc";
-    }
-
-    @Override
-    protected String getCancelButtonMessageKey() {
-        return "button.exit";
-    }
-
-    @Override
-    protected String getActionsListHtmlId() {
-        return "actions-list";
-    }
-
-    @Override
-    protected String getSaveButtonHtmlId() {
-        return "action-button-save";
-    }
-
-    @Override
-    protected String getActionsGenericListHtmlId() {
-        return "actions-generic-list";
-    }
-
-    @Override
-    protected String getVaadinWidgetsHtmlId() {
-        return "vaadin-widgets";
-    }
-
-    @Override
-    protected String getCancelButtonClickFunction() {
-        return "onCancelButton";
-    }
-
-    @Override
-    protected String getCancelButtonHtmlId() {
-        return "action-button-cancel";
-    }
-
-    @Override
-    protected String getActionsSpecificListHtmlId() {
-        return "actions-process-list";
-    }
-
-    @Override
-    protected boolean isUserCanPerformActions() {
-        return isUserAssignedToTask() || isSubstitutingUser();
-    }
-
-    @Override
-    protected String getSaveButtonClickFunction() {
-        return "onSaveButton";
-    }
 }

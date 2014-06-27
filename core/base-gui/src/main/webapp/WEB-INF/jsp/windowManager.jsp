@@ -65,14 +65,7 @@
 		{
 			this.showView(this.allViews['outer-queues'], true);
 		}
-
-        this.showSavingScreen = function() {
-            $('#saving-screen').show();
-        }
-
-		this.hideSavingScreen = function() {
-            $('#saving-screen').hide();
-        }
+		
 		
 		this.showConfiguration = function()
 		{
@@ -100,12 +93,6 @@
 			this.showView(this.allViews['process-data-view'], true);
 			$('#actions-list').fadeIn(600);
 		}
-
-        this.showProcessDataImmediate = function()
-        {
-            this.showView(this.allViews['process-data-view'], true);
-            $('#actions-list').show();
-        }
 		
 		this.hasPreviousView = function()
 		{

@@ -160,8 +160,7 @@
 	function saveAction(taskId)
 	{
 		clearAlerts();
-        windowManager.showSavingScreen();
-
+		
 		var errors = [];
 		<!-- Validate html widgets -->
 		
@@ -184,7 +183,6 @@
 		if(errors.length > 0)
 		{
 			enableButtons();
-            windowManager.hideSavingScreen();
 			return;
 		}
 		
@@ -208,23 +206,13 @@
 			{
 				addAlerts(data.errors);
 			}
-            if (data.data) {
-                clearAlerts();
-                windowManager.showProcessDataImmediate();
-                $('#process-data-view').empty();
-                $("#process-data-view").append(data.data);
-                checkIfViewIsLoaded();
-            }
-            windowManager.hideSavingScreen();
 		})
 		.always(function() 
-		{
-            enableButtons();
-            windowManager.hideSavingScreen();
+		{ 
+			enableButtons();
 		})
 		.fail(function(data) 
-		{
-            windowManager.hideSavingScreen();
+		{ 
 			addAlerts(data.errors);
 		});
 		
