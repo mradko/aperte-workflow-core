@@ -25,6 +25,7 @@
 	<%@include file="configuration.jsp" %>
 	<div id="error-screen" class="errors-view" hidden="true"></div>
 	<div id="loading-screen" class="loader-2"></div>
+    <div hidden id="saving-screen" class="loader-2 saver"></div>
 </div> 
 
 </c:if>  
