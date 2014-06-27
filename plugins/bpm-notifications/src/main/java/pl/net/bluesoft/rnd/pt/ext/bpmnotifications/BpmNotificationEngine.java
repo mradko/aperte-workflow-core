@@ -70,7 +70,9 @@ public class BpmNotificationEngine implements IBpmNotificationService
 
     /** Mail body encoding */
     private static final String MAIL_ENCODING = "UTF-8";
-    
+
+    private static final String GROUP_MAIL_ROLE = "R_ZAPOTRZEBOWANIE_ZBIORCZY_MAIL";
+
     private static final Logger logger = Logger.getLogger(BpmNotificationEngine.class.getName());
 
     private Collection<BpmNotificationConfig> configCache = new HashSet<BpmNotificationConfig>();
@@ -507,19 +509,25 @@ public class BpmNotificationEngine implements IBpmNotificationService
         notification.setProfileName(processedNotificationData.getProfileName());
         Boolean isGroup = null;
 
-        isGroup = (Boolean)processedNotificationData.getRecipient().getAttribute("aperte-delay-emails");
+
+        if((Boolean)processedNotificationData.getRecipient().getAttribute("aperte-delay-emails"))
+        {
+            isGroup = true;
+            Date d = (Date)processedNotificationData.getRecipient().getAttribute("aperte-delay-wait-until");
+            int time = 1000*((d.getHours()) * 3600 + d.getMinutes() * 60 + d.getSeconds());
+            notification.setSendAfterHour(time);
+        }
+        else if(getRegistry().getAutoUser().hasRole(GROUP_MAIL_ROLE))
+        {
+            isGroup = true;
+            int time = 1000*(15 * 3600);//GMT+2 17:00
+            notification.setSendAfterHour(time);
+        }
 
         if(isGroup == null)
             logger.log(Level.SEVERE, "Add custom field true/false for grouping notifications. Property: bpmnot.notify.liferay.groupingCheckbox=key");
 
         notification.setGroupNotifications(isGroup);
-
-        if (notification.isGroupNotifications()){
-            Date d = (Date)processedNotificationData.getRecipient().getAttribute("aperte-delay-wait-until");
-            int time = 1000*((d.getHours()) * 3600 + d.getMinutes() * 60 + d.getSeconds());
-
-	        notification.setSendAfterHour(time);
-        }
 
         StringBuilder attachmentsString = new StringBuilder();
         int attachmentsSize = processedNotificationData.getAttachments().size();
