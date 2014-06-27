@@ -16,8 +16,9 @@
 				<th style="width:9%;"><spring:message code="processes.list.table.process.creator" /></th>
 				<th style="width:9%;"><spring:message code="processes.list.table.process.creationdate" /></th>
 				<th style="width:9%;"><spring:message code="processes.list.table.process.deadline" /></th>
-				<th style="width:12%;"><spring:message code="processes.list.table.process.stepinfo" /></th>
-				<th style="width:10%;"><spring:message code="processes.list.table.process.actions" /></th>
+				<th style="width:10%;"><spring:message code="processes.list.table.process.demandTitle" /></th>
+                <th style="width:10%;"><spring:message code="processes.list.table.process.demandCostsSum" /></th>
+				<th style="width:9%;"><spring:message code="processes.list.table.process.actions" /></th>
 			</tr>
 		</thead>
 		<tbody></tbody>
@@ -41,14 +42,17 @@
 				 { "sName":"creator", "bSortable": true,"bVisible":parsedCustom.creator,"mData": "creator" },
 				 { "sName":"creationDate", "bSortable": true,"bVisible":parsedCustom.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yyyy, HH:mm:ss');}},
 				 { "sName":"deadline", "bSortable": true,"bVisible":parsedCustom.deadline,"mData": function(object){return object.deadline == null ? "<spring:message code='processes.list.table.nodeadline' />" : $.format.date(object.deadline, 'dd-MM-yyyy, HH:mm');}},
-				 { "sName":"stepInfo", "bSortable": true ,"bVisible":parsedCustom.stepInfo, "mData":"stepInfo" },
+                 { "sName":"demandTitle", "bSortable": true ,"bVisible":parsedCustom.demandTitle, "mData":function(object){if(object.demandTitle==null)return null; else if(object.demandTitle.length > 15)return object.demandTitle.substring(0, 12)+'...'; else return object.demandTitle;}  },
+                 { "sName":"demandCostsSum", "bSortable": true ,"bVisible":parsedCustom.demandCostsSum, "mData":function(object){if(object.demandCostsSum==null)return null; else if(object.demandCostsSum.length > 15)return object.demandCostsSum.substring(0, 12)+'...'; else return object.demandCostsSum;}},
 				 { "sName":"actions", "bSortable": false,"bVisible":parsedCustom.actions,"mData": function(object){return generateButtons(object)}}
 			 ],
 			 [[ 6, "desc" ]]
 			);
-			
+
+        dataTable.addParameter('taskListViewName','DpdListView');
+
 		queueViewManager.addTableView('queue', dataTable, 'customqueue-panel-view');
-			
+
 		dataTable.enableMobileMode = function()
 		{
 			this.toggleColumnButton("deadline", false);
