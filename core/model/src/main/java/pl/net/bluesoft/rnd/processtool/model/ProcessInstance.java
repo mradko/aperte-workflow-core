@@ -632,4 +632,9 @@ public class ProcessInstance extends AbstractPersistentEntity
         log.setAdditionalInfo(StringUtils.join(parameters, ","));
         getRootProcessInstance().addProcessLog(log);
     }
+
+    public Object getAttribute(String key) {
+        return getProcessAttribute(key);
+    }
+
 }

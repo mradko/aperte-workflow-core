@@ -29,6 +29,7 @@ import pl.net.bluesoft.rnd.processtool.model.nonpersistent.ProcessQueue;
 import pl.net.bluesoft.rnd.processtool.model.processdata.ProcessComment;
 import pl.net.bluesoft.rnd.processtool.web.domain.DataPagingBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.ErrorResultBean;
+import pl.net.bluesoft.rnd.processtool.web.domain.GenericResultBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBean;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -128,7 +129,7 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
             /* Save task before action performing */
             if(!"true".equals(skipSaving))
             {
-                SaveResultBean saveResult = saveAction(request);
+                GenericResultBean saveResult = saveAction(request);
                 if(saveResult.hasErrors())
                 {
                     resultBean.copyErrors(saveResult);
@@ -255,13 +256,13 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
 	 */
 	@RequestMapping(method = RequestMethod.POST, value = "/processes/saveAction.json")
 	@ResponseBody
-	public SaveResultBean saveAction(final HttpServletRequest request)
+	public GenericResultBean saveAction(final HttpServletRequest request)
 	{
 		logger.info("saveAction ...");
 		long t0 = System.currentTimeMillis();
 
 		logger.warning("SAVE!");
-		final SaveResultBean resultBean = new SaveResultBean();
+		final GenericResultBean resultBean = new GenericResultBean();
 		
 		/* Initilize request context */
 		final IProcessToolRequestContext context = this.initilizeContext(request,getProcessToolRegistry().getProcessToolSessionFactory());
@@ -330,7 +331,12 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                                 for (ErrorResultBean errorBean : widgetsSaveResult.getErrors())
                                     resultBean.addError(errorBean);
                             }
-
+                            else {
+                                // rebuild the task view
+                                final String view = TaskViewController.buildTaskView(getProcessToolRegistry(), context, taskId);
+                                if (!isNull(view))
+                                    resultBean.setData(view);
+                            }
                         }
 
                         long t4 = System.currentTimeMillis();

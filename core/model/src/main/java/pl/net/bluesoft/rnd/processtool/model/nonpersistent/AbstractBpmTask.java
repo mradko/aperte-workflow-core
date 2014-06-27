@@ -58,4 +58,34 @@ public abstract class AbstractBpmTask implements BpmTask {
 				", isFinished=" + isFinished() +
 				'}';
 	}
+
+    @Override
+    public String getDefinitionName() {
+        return this.getProcessDefinition().getProcessName();
+    }
+
+    @Override
+    public Object getProvider() {
+        return this;
+    }
+
+    @Override
+    public String getSimpleAttributeValue(String key) {
+        return getProcessInstance().getSimpleAttributeValue(key);
+    }
+
+    @Override
+    public String getSimpleLargeAttributeValue(String key) {
+        return getProcessInstance().getSimpleLargeAttributeValue(key);
+    }
+
+    @Override
+    public Object getAttribute(String key) {
+        return getProcessInstance().getAttribute(key);
+    }
+
+    @Override
+    public Long getId() {
+        return getProcessInstance().getId();
+    }
 }

@@ -20,6 +20,7 @@ import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateAction;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateWidget;
+import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
 import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBean;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -253,14 +254,94 @@ public class TaskViewController extends AbstractProcessToolServletController
                     );
 	}
 
-	private static final Comparator<ProcessStateWidget> BY_WIDGET_PRIORITY = new Comparator<ProcessStateWidget>() {
+    public static String buildTaskView(final ProcessToolRegistry processToolRegistry, final IProcessToolRequestContext context, final String taskId) {
+        final StringBuilder builder = new StringBuilder();
+
+        processToolRegistry.withProcessToolContext(new ProcessToolContextCallback() {
+            @Override
+            public void withContext(ProcessToolContext ctx) {
+                long t0 = System.currentTimeMillis();
+
+                // reset string buffer
+                builder.setLength(0);
+
+                BpmTask task = getBpmTask(context, taskId);
+
+                long t1 = System.currentTimeMillis();
+
+                ProcessStateConfiguration config = task.getCurrentProcessStateConfiguration();
+                String processDescription = context.getMessageSource().getMessage(config.getDefinition().getDescription());
+                String processVersion = String.valueOf(config.getDefinition().getBpmDefinitionVersion());
+
+                long t2 = System.currentTimeMillis();
+
+                // Load view widgets
+                List<ProcessStateWidget> widgets = new ArrayList<ProcessStateWidget>(config.getWidgets());
+                Collections.sort(widgets, BY_WIDGET_PRIORITY);
+
+                long t3 = System.currentTimeMillis();
+
+                // Load view actions
+                List<ProcessStateAction> actions = new ArrayList<ProcessStateAction>(config.getActions());
+                Collections.sort(actions, BY_ACTION_PRIORITY);
+
+                long t4 = System.currentTimeMillis();
+
+                TaskViewBuilder taskViewBuilder = new TaskViewBuilder()
+                        .setWidgets(widgets)
+                        .setActions(actions)
+                        .setDescription(processDescription)
+                        .setVersion(processVersion)
+                        .setI18Source(context.getMessageSource())
+                        .setUser(context.getUser())
+                        .setCtx(ctx)
+                        .setUserQueues(context.getUserQueues())
+                        .setTask(task)
+                        .setBpmSession(context.getBpmSession());
+
+                long t5 = System.currentTimeMillis();
+
+                try {
+                    builder.append(taskViewBuilder.build());
+
+                } catch (Exception ex) {
+                    logger.log(Level.SEVERE, "Problem during task view generation. TaskId=" + taskId, ex);
+                }
+                long t6 = System.currentTimeMillis();
+
+                logger.log(Level.INFO, "loadTask.withContext total: " + (t6-t0) + "ms, " +
+                                "[1]: " + (t1-t0) + "ms, " +
+                                "[2]: " + (t2-t1) + "ms, " +
+                                "[3]: " + (t3-t2) + "ms, " +
+                                "[4]: " + (t4-t3) + "ms, " +
+                                "[5]: " + (t5-t4) + "ms, " +
+                                "[6]: " + (t6-t5) + "ms, "
+                );
+            }
+        }, ExecutionType.TRANSACTION_SYNCH);
+        return builder.toString();
+    }
+
+    private static BpmTask getBpmTask(IProcessToolRequestContext context, String taskId) {
+        String jbpmTaskId = taskId;
+
+        BpmTask task = context.getBpmSession().getTaskData(jbpmTaskId);
+
+        if(task == null) {
+            task = context.getBpmSession().getHistoryTask(jbpmTaskId);
+        }
+        return task;
+    }
+
+
+    private static final Comparator<ProcessStateWidget> BY_WIDGET_PRIORITY = new Comparator<ProcessStateWidget>() {
 		@Override
 		public int compare(ProcessStateWidget widget1, ProcessStateWidget widget2) {
 			return widget1.getPriority().compareTo(widget2.getPriority());
 		}
 	};
 
-	private Comparator<ProcessStateAction> BY_ACTION_PRIORITY = new Comparator<ProcessStateAction>() {
+	private static final Comparator<ProcessStateAction> BY_ACTION_PRIORITY = new Comparator<ProcessStateAction>() {
 		@Override
 		public int compare(ProcessStateAction action1, ProcessStateAction action2) {
 			if(action1.getPriority() == null)
