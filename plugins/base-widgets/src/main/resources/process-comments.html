@@ -92,7 +92,7 @@
                     (date.getMonth() + 1) + "-" +
                     date.getFullYear() + " " +
                     date.getHours() + ":" +
-                    date.getMinutes();
+                    (date.getMinutes() > 9 ? date.getMinutes() : "0" + date.getMinutes());
         var dateFull = dateStr + ":" + date.getSeconds();
         var body = $('#process_comments_body').val();
         body = $("<div/>").text(body).html();
