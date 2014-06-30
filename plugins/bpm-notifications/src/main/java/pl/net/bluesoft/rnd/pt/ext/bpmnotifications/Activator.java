@@ -46,7 +46,6 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
     private Logger logger = Logger.getLogger(Activator.class.getName());
 
     private BpmNotificationEngine engine;
-    private GroupedNotification groupedNotification;
 	MailEventListener mailEventListener;
 	private SchedulersActivator schedulerActivator;
 	
@@ -64,13 +63,11 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 				
 				/* Init the bpm notification engine */
 				engine = new BpmNotificationEngine(processToolRegistry);
-				groupedNotification = new GroupedNotification(processToolRegistry);
 			}
         });
 		
 		schedulerActivator = new SchedulersActivator(processToolRegistry);
 		
-		processToolRegistry.getBundleRegistry().registerService(IBpmNotificationService.class, groupedNotification, new Properties());
         processToolRegistry.getBundleRegistry().registerService(IBpmNotificationService.class, engine, new Properties());
         
         processToolRegistry.getEventBusManager().subscribe(BpmEvent.class, this);
@@ -80,7 +77,6 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
 		
 		/* Register scheduler for notifications sending */
 		schedulerActivator.scheduleNotificationsSend(engine);
-		schedulerActivator.scheduleNotificationsSend(groupedNotification);
 
 		getViewRegistry(processToolRegistry).registerGenericPortletViewRenderer("admin", BpmAdminPortletRender.INSTANCE);
 		getViewRegistry(processToolRegistry).registerGenericPortletViewRenderer("user", BpmAdminPortletRender.INSTANCE);

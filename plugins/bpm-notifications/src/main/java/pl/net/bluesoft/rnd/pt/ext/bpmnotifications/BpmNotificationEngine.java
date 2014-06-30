@@ -149,39 +149,12 @@ public class BpmNotificationEngine implements IBpmNotificationService
     /** The method check if there are any new notifications in database to be sent */
     public void handleNotifications()
     {
-//        registry.withOperationLock(
-//                new OperationWithLock<Object>() {
-//                    @Override
-//                    public Object action(ProcessToolContext ctx) {
-//                        handleNotificationsWithContext();
-//                        return null;
-//                    }
-//                },
-//                "HandleNotifications",
-//                OperationLockMode.WAIT,
-//                1
-//        );
-//
-//        registry.withOperationLock(
-//                new OperationWithLock<Object>() {
-//                    @Override
-//                    public Object action(ProcessToolContext ctx) {
-//                        handleGroupNotificationsWithContext();
-//                        return null;
-//                    }
-//                },
-//                "HandleGroupNotifications",
-//                OperationLockMode.WAIT,
-//                1
-//        );
-
         registry.withProcessToolContext(new ProcessToolContextCallback()
         {
             @Override
             public void withContext(ProcessToolContext ctx)
             {
                 handleNotificationsWithContext();
-                handleGroupNotificationsWithContext();
             }
         });
     }
@@ -189,15 +162,10 @@ public class BpmNotificationEngine implements IBpmNotificationService
     /** The method check if there are any new notifications in database to be sent */
     public void handleNotificationsWithContext()
     {
-
     	logger.info("[NOTIFICATIONS JOB] Checking awaiting notifications... ");
 
         /* Get all notifications waiting to be sent */
-        Collection<BpmNotification> notificationsToSend = NotificationsFacade.getNotificationsToSend();
-
-        /* Get all notifications waiting to be sent */
-        Collection<BpmNotification> notificationsToSendForGrouping = NotificationsFacade.getNotificationsForGrouping(30000);
-        notificationsToSend.addAll(notificationsToSendForGrouping);
+        Collection<BpmNotification> notificationsToSend = NotificationsFacade.getNotificationsToSend(30000);
 
         logger.info("[NOTIFICATIONS JOB] "+notificationsToSend.size()+" notifications waiting to be sent...");
 
@@ -205,27 +173,8 @@ public class BpmNotificationEngine implements IBpmNotificationService
 
         for(BpmNotification notification: notificationsToSend)
         {
-            notificationsToSendMap.put(Long.toString(notification.getNotificationCreated().getTime()), notification);
-        }
-	    	
-        handleNotificationsToSend(notificationsToSendMap);
-
-    }
-
-    /** The method check if there are any group notifications in database to be sent */
-    public void handleGroupNotificationsWithContext()
-    {
-        logger.info("[NOTIFICATIONS JOB] Checking awaiting notifications... ");
-
-    	/* Get all group notifications to be sent */
-        Collection<BpmNotification> notificationsToSendForGrouping = NotificationsFacade.getNotificationsForGrouping(30000);
-
-        logger.info("[NOTIFICATIONS JOB] "+notificationsToSendForGrouping.size()+" group notifications waiting to be sent...");
-
-        Map<String,BpmNotification> notificationsToSendMap = new HashMap<String, BpmNotification>();
-
-        for(BpmNotification notification: notificationsToSendForGrouping)
-        {
+            if(notification.isGroupNotifications())
+            {
                 BpmNotification groupedNotif = notificationsToSendMap.get(notification.getRecipient());
 
                 if (groupedNotif != null ){
@@ -243,8 +192,12 @@ public class BpmNotificationEngine implements IBpmNotificationService
                     notification.setBody(notification.getSubject());
                     notificationsToSendMap.put(notification.getRecipient(), notification);
                 }
+            }
+            else {
+                notificationsToSendMap.put(Long.toString(notification.getNotificationCreated().getTime()), notification);
+            }
         }
-
+	    	
         handleNotificationsToSend(notificationsToSendMap);
     }
 
@@ -523,9 +476,10 @@ public class BpmNotificationEngine implements IBpmNotificationService
             int time = 1000*(15 * 3600);//GMT+2 17:00
             notification.setSendAfterHour(time);
         }
-
-        if(isGroup == null)
-            logger.log(Level.SEVERE, "Add custom field true/false for grouping notifications. Property: bpmnot.notify.liferay.groupingCheckbox=key");
+        else
+        {
+            isGroup = false;
+        }
 
         notification.setGroupNotifications(isGroup);
 
