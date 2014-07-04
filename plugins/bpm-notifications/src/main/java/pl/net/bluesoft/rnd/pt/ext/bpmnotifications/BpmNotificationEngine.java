@@ -106,7 +106,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
     {
     	this.registry = registry;
     	
-    	
+
     	try {init();}catch (Exception e){}
     }
     
@@ -174,13 +174,19 @@ public class BpmNotificationEngine implements IBpmNotificationService
 //                OperationLockMode.WAIT,
 //                1
 //        );
-
         registry.withProcessToolContext(new ProcessToolContextCallback()
         {
             @Override
             public void withContext(ProcessToolContext ctx)
             {
                 handleNotificationsWithContext();
+            }
+        });
+        registry.withProcessToolContext(new ProcessToolContextCallback()
+        {
+            @Override
+            public void withContext(ProcessToolContext ctx)
+            {
                 handleGroupNotificationsWithContext();
             }
         });
@@ -194,10 +200,6 @@ public class BpmNotificationEngine implements IBpmNotificationService
 
         /* Get all notifications waiting to be sent */
         Collection<BpmNotification> notificationsToSend = NotificationsFacade.getNotificationsToSend();
-
-        /* Get all notifications waiting to be sent */
-        Collection<BpmNotification> notificationsToSendForGrouping = NotificationsFacade.getNotificationsForGrouping(30000);
-        notificationsToSend.addAll(notificationsToSendForGrouping);
 
         logger.info("[NOTIFICATIONS JOB] "+notificationsToSend.size()+" notifications waiting to be sent...");
 
@@ -486,7 +488,8 @@ public class BpmNotificationEngine implements IBpmNotificationService
      * 
      */
     public void addNotificationToSend(ProcessedNotificationData processedNotificationData) throws Exception 
-    {    	
+    {
+
         if (!processedNotificationData.hasSender()) 
         {
             UserData autoUser = getRegistry().getAutoUser();
@@ -510,14 +513,15 @@ public class BpmNotificationEngine implements IBpmNotificationService
         Boolean isGroup = null;
 
 
-        if((Boolean)processedNotificationData.getRecipient().getAttribute("aperte-delay-emails"))
+        Boolean aperteDelayEmails = (Boolean)processedNotificationData.getRecipient().getAttribute("aperte-delay-emails");
+        if(aperteDelayEmails != null && aperteDelayEmails)
         {
             isGroup = true;
             Date d = (Date)processedNotificationData.getRecipient().getAttribute("aperte-delay-wait-until");
             int time = 1000*((d.getHours()) * 3600 + d.getMinutes() * 60 + d.getSeconds());
             notification.setSendAfterHour(time);
         }
-        else if(getRegistry().getAutoUser().hasRole(GROUP_MAIL_ROLE))
+        else if(processedNotificationData.getRecipient() != null && processedNotificationData.getRecipient().hasRole(GROUP_MAIL_ROLE))
         {
             isGroup = true;
             int time = 1000*(15 * 3600);//GMT+2 17:00
@@ -527,7 +531,8 @@ public class BpmNotificationEngine implements IBpmNotificationService
         if(isGroup == null)
             logger.log(Level.SEVERE, "Add custom field true/false for grouping notifications. Property: bpmnot.notify.liferay.groupingCheckbox=key");
 
-        notification.setGroupNotifications(isGroup);
+        else
+            notification.setGroupNotifications(isGroup);
 
         StringBuilder attachmentsString = new StringBuilder();
         int attachmentsSize = processedNotificationData.getAttachments().size();

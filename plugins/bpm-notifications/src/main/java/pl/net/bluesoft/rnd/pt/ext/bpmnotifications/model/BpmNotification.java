@@ -46,7 +46,7 @@ public class BpmNotification extends PersistentEntity
     /** Send message after specific hour */
     private int sendAfterHour;
     
-    private boolean groupNotifications;
+    private boolean groupNotifications = false;
 
 	private Date notificationCreated;
     
