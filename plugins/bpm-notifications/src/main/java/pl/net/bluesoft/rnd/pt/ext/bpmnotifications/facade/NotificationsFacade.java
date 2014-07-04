@@ -21,29 +21,20 @@ import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationMailProp
 public class NotificationsFacade 
 {
 	/** Get all notifications waiting to be sent */
-	public static Collection<BpmNotification> getNotificationsToSend()
-	{			
-		return (List<BpmNotification>)getSession()
-				.createCriteria(BpmNotification.class)
-				.add(Restrictions.eq("groupNotifications", false))
-				.addOrder(Order.asc("recipient"))
-				.list();
-	}
-	
-	/** Get all notifications waiting to be sent for grouping */
-	public static Collection<BpmNotification> getNotificationsForGrouping(int interval)
+	public static Collection<BpmNotification> getNotificationsToSend(int interval)
 	{
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         int time = 1000*(c.get(Calendar.HOUR_OF_DAY) * 3600 + c.get(Calendar.MINUTE) * 60 + c.get(Calendar.SECOND));
 
-		return (List<BpmNotification>)getSession()
-				.createCriteria(BpmNotification.class)
-                .add(Restrictions.eq("groupNotifications", true))
-				.add(Restrictions.le("sendAfterHour", time+interval))
-                .add(Restrictions.ge("sendAfterHour", time-interval))
-				.addOrder(Order.asc("recipient"))
-				.list();
+        return (List<BpmNotification>)getSession()
+                .createQuery("from BpmNotification as n " +
+                        "where n.groupNotifications=false or (n.groupNotifications=true and n.sendAfterHour>=:from and n.sendAfterHour<=:to) " +
+                        "order by recipient asc")
+                .setParameter("from", time-interval)
+                .setParameter("to", time+interval)
+                .list();
 	}
+
 	/** Get all notifications properties */
 	public static Collection<BpmNotificationMailProperties> getNotificationMailProperties()
 	{
