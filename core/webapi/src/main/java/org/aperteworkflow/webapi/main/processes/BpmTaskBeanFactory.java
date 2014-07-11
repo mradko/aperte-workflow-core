@@ -37,7 +37,7 @@ public class BpmTaskBeanFactory implements TasksListViewBeanFactory {
         if(processCode == null)
             processCode = task.getProcessInstance().getInternalId();
 
-
+        taskBean.setTaskAssigneDate(task.getCreateDate());
         taskBean.setProcessName(messageSource.getMessage(task.getProcessDefinition().getDescription()));
         taskBean.setName(task.getTaskName());
         taskBean.setCode(nvl(processCode));

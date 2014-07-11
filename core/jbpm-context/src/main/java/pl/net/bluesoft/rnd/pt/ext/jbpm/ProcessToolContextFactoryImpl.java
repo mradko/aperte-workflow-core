@@ -1,9 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
-import org.hibernate.FlushMode;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+import org.hibernate.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -66,6 +63,9 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
         T result = null;
 
         Session session = registry.getDataRegistry().getSessionFactory().openSession();
+        session.setFlushMode(FlushMode.COMMIT);
+        session.setCacheMode(CacheMode.IGNORE);
+
         try {
 
             try {

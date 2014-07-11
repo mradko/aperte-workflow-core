@@ -141,4 +141,23 @@ public class BpmNotification extends PersistentEntity
 	public void setSendAfterHour(int sendAfterHour) {
 		this.sendAfterHour = sendAfterHour;
 	}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BpmNotification entity = (BpmNotification) o;
+
+        if (id != null ? !id.equals(entity.getId()) : entity.getId() != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
+
+
 }

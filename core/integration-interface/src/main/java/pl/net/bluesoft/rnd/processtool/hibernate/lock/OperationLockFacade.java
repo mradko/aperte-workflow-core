@@ -44,6 +44,8 @@ public class OperationLockFacade implements ILockFacade
             Transaction transaction = session.beginTransaction();
             lock =  acquireLock(options);
             transaction.commit();
+            session.flush();
+            session.clear();
 
             return operation.action(ctx);
 
@@ -64,6 +66,8 @@ public class OperationLockFacade implements ILockFacade
                 Transaction transaction = session.beginTransaction();
                 releaseLock(lock);
                 transaction.commit();
+                session.flush();
+                session.clear();
             }
         }
     }

@@ -67,6 +67,7 @@ public class BpmNotificationEngine implements IBpmNotificationService
     private static final String SUBJECT_TEMPLATE_SUFFIX = "_subject";
     private static final String SENDER_TEMPLATE_SUFFIX = "_sender";
     private static final String DEFAULT_PROFILE_NAME = "Default";
+    private static final String NOTIFICATION_LOCK_NAME = "notificationLock";
 
     /** Mail body encoding */
     private static final String MAIL_ENCODING = "UTF-8";
@@ -149,14 +150,32 @@ public class BpmNotificationEngine implements IBpmNotificationService
     /** The method check if there are any new notifications in database to be sent */
     public void handleNotifications()
     {
-        registry.withProcessToolContext(new ProcessToolContextCallback()
-        {
+        registry.withProcessToolContext(new ProcessToolContextCallback() {
             @Override
-            public void withContext(ProcessToolContext ctx)
-            {
+            public void withContext(ProcessToolContext ctx) {
                 handleNotificationsWithContext();
+                ProcessToolContext.Util.getThreadProcessToolContext().getHibernateSession().flush();
             }
         });
+//        registry.withOperationLock(new OperationWithLock<Object>() {
+//            @Override
+//            public Object action(ProcessToolContext ctx)
+//            {
+//                Session session = ProcessToolContext.Util.getThreadProcessToolContext().getHibernateSession();
+//                Transaction transaction = session.beginTransaction();
+//                try
+//                {
+//                    handleNotificationsWithContext();
+//                    transaction.commit();
+//                }
+//                catch (Throwable e)
+//                {
+//                    logger.log(Level.SEVERE, e.getMessage(), e);
+//                    transaction.rollback();
+//                }
+//                return null;
+//            }
+//        }, NOTIFICATION_LOCK_NAME, OperationLockMode.IGNORE, 1);
     }
     
     /** The method check if there are any new notifications in database to be sent */

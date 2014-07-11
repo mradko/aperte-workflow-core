@@ -55,6 +55,7 @@ public class DictionaryService  implements IOsgiWebController {
         else
         {
             for(DictionaryItem item: dictionaryItems)
+
                 if(isContainText(item, searchTerm.toLowerCase()))
                     results.add(item);
         }

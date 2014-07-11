@@ -2,7 +2,9 @@ package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade;
 
 import java.util.*;
 
+import org.hibernate.CacheMode;
 import org.hibernate.LockMode;
+import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
@@ -32,6 +34,8 @@ public class NotificationsFacade
                         "order by recipient asc")
                 .setParameter("from", time-interval)
                 .setParameter("to", time+interval)
+                .setLockOptions(LockOptions.NONE)
+                .setCacheMode(CacheMode.IGNORE)
                 .list();
 	}
 
