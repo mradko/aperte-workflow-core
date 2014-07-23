@@ -169,6 +169,7 @@
             $('#files-table tr').each(function() {
                 makeEditableOnClick($(this));
             });
+
         } else if ("${mode}" == "mixed") {
             $('.fileinput-button').show();
             var rowsToEnable = $('#files-table').find('tr[class^="file-tr-l"]').filter('tr[class="file-tr-l-${userLogin}-l"]');
@@ -177,10 +178,14 @@
             });
             var rowsToDisable = $('#files-table').find('tr[class^="file-tr-l"]:not(tr[class="file-tr-l-${userLogin}-l"])');
             $(rowsToDisable).find('button.deleteFileBtn').prop('disabled', true).hide();
+
         } else if("${mode}" == "view") {
             var disabledBtn = $('#files-table button.deleteFileBtn');
             disabledBtn.prop('disabled', true);
             disabledBtn.hide();
+            var disabledDownloadBtn = $('#files-table button.downloadFileBtn');
+            disabledDownloadBtn.prop('disabled', true);
+            disabledDownloadBtn.hide();
         }
 
 
