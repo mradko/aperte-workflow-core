@@ -1,9 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.jbpm;
 
-import org.hibernate.FlushMode;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+import org.hibernate.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -66,6 +63,8 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
         T result = null;
 
         Session session = registry.getDataRegistry().getSessionFactory().openSession();
+        session.setFlushMode(FlushMode.COMMIT);
+        session.setCacheMode(CacheMode.IGNORE);
         try {
 
             try {
@@ -81,7 +80,6 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
             }
 
         } finally {
-            session.clear();
             session.close();
         }
         return result;
@@ -162,18 +160,39 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
                 result = callback.processWithContext(ctx);
 
                 try {
-                    //throw new RuntimeException();
                     tx.commit();
-                } catch (Exception ex) {
+                }
+                catch (Throwable ex)
+                {
+                    try {
+                        tx.rollback();
+
+                    }
+                    catch (Exception e1) {
+                        logger.log(Level.WARNING, e1.getMessage(), e1);
+                    }
+
                     /* Hardcore fix //TODO change */
                     logger.severe("Ksession problem, retry: "+reload);
-                    if (reload) {
+                    if (reload)
+                    {
+                        /* Clean up before retry */
+                        if (session.isOpen())
+                            session.close();
+
+                        ctx.close();
+                        ProcessToolContext.Util.removeThreadProcessToolContext();
+
                         reloadJbpm();
                         executeWithProcessToolContextNonJta(callback,false);
                     }
+                    else
+                    {
+                        throw ex;
+                    }
                 }
             }
-            catch (RuntimeException e)
+            catch (Throwable e)
             {
                 logger.log(Level.SEVERE, e.getMessage(), e);
                 try {
@@ -182,7 +201,7 @@ public class ProcessToolContextFactoryImpl implements ProcessToolContextFactory
                 catch (Exception e1) {
                     logger.log(Level.WARNING, e1.getMessage(), e1);
                 }
-                throw e;
+                throw new RuntimeException(e);
             }
             finally
             {

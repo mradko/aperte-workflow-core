@@ -7,6 +7,7 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.SessionFactoryImplementor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 import org.springframework.stereotype.Component;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.ProcessToolContextFactory;
@@ -19,9 +20,11 @@ import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.util.lang.FormatUtil;
 
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.transaction.UserTransaction;
 import java.io.ByteArrayInputStream;
+import java.sql.Connection;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,6 +51,8 @@ public class DataRegistryImpl implements DataRegistry {
 	private final ExpressionEvaluators expressionEvaluators = new ExpressionEvaluators();
 
     private SessionFactory sessionFactory;
+
+    private TransactionAwareDataSourceProxy dataSourceProxy;
 
     @Autowired
     private ProcessToolContextFactory processToolContextFactory;
@@ -114,6 +119,12 @@ public class DataRegistryImpl implements DataRegistry {
     @Override
     public synchronized void commitModelExtensions() {
         buildSessionFactory();
+		buildSimpleDataSource();
+    }
+
+    @Override
+    public TransactionAwareDataSourceProxy getDataSourceProxy() {
+        return dataSourceProxy;
     }
 
     @Override
@@ -303,6 +314,23 @@ public class DataRegistryImpl implements DataRegistry {
         }
     }
 
+	private void buildSimpleDataSource()
+    {
+        String jndi = nvl("java:comp/env/jdbc/aperte-workflow-ds-simple");
+
+        try {
+            InitialContext ic = new InitialContext();
+            ic.lookup(jndi);
+
+            dataSourceProxy = new TransactionAwareDataSourceProxy();
+            dataSourceProxy.setTargetDataSource((DataSource) ic.lookup(jndi));
+        }
+        catch (NamingException e) {
+            logger.log(Level.SEVERE, "Problem with simple aperte data-source", e);
+        }
+    }
+
+
     private UserTransaction findUserTransaction() {
         UserTransaction ut = null;
         if (!"true".equalsIgnoreCase(System.getProperty("org.aperteworkflow.nojta"))) {
@@ -351,11 +379,6 @@ public class DataRegistryImpl implements DataRegistry {
     @Override
     public ProcessDefinitionDAO getProcessDefinitionDAO(Session hibernateSession) {
         return new ProcessDefinitionDAOImpl(hibernateSession);
-    }
-
-    @Override
-    public OperationLockDAO getOperationLockDAO(Session hibernateSession) {
-        return new OperationLockDAOImpl(hibernateSession);
     }
 
 
@@ -443,4 +466,5 @@ public class DataRegistryImpl implements DataRegistry {
 	public ExpressionEvaluators getExpressionEvaluators() {
 		return expressionEvaluators;
 	}
+
 }
