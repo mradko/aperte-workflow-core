@@ -341,7 +341,7 @@
 						  $.each(data.data, function(index, item){
 							results.push({
 							  id: item.login,
-							  text: getReceivingPersonCaption(item)
+							  text: item.firstName +" "+ item.lastName+" ["+item.login+"]"
 							});
 						  });
 						  return {

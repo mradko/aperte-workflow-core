@@ -65,6 +65,11 @@
 			<version>3.0-beta2-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>14.0.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -87,6 +92,7 @@
                         <Export-Package>
                         	pl.net.bluesoft.rnd.pt.ext.bpmnotifications,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service,
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.utils,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model,
@@ -123,6 +129,7 @@
                             org.quartz,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service,
+                            pl.net.bluesoft.rnd.pt.ext.bpmnotifications.utils,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.templates,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.sessions,
                             pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model,

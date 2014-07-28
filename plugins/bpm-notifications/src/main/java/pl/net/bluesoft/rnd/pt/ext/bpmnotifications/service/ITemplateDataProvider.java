@@ -5,6 +5,7 @@ import java.util.Locale;
 
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig;
@@ -85,7 +86,7 @@ public interface ITemplateDataProvider extends IArgumentProviderHandler
 	 * - process
 	 * - assignee
 	 */
-	ITemplateDataProvider addProcessData(TemplateData templateData, ProcessInstance pi);
+	ITemplateDataProvider addProcessData(TemplateData templateData, IAttributesProvider provider);
 	
 	/**
 	 * Add entries:
@@ -94,7 +95,7 @@ public interface ITemplateDataProvider extends IArgumentProviderHandler
 	ITemplateDataProvider addUserToNotifyData(TemplateData templateData, UserData userToNotify);
 	
 	/** Add entries from additional argument providers */
-	ITemplateDataProvider addArgumentProvidersData(TemplateData templateData, String templateArgumentProvider, ProcessInstance pi);
+	ITemplateDataProvider addArgumentProvidersData(TemplateData templateData, String templateArgumentProvider, IAttributesProvider provider);
 	
 	/** Add technical additional data. This method should be deleted in future refactoring */
 	ITemplateDataProvider addContextAdditionalData(TemplateData templateData, BpmNotificationConfig cfg, ProcessToolBpmSession bpmSession);

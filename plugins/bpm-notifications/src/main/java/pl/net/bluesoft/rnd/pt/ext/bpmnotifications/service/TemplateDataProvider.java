@@ -16,6 +16,7 @@ import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
+import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.processtool.model.config.ProcessStateConfiguration;
@@ -84,13 +85,14 @@ public class TemplateDataProvider implements ITemplateDataProvider
 	}
 	
 	@Override
-	public TemplateDataProvider addProcessData(TemplateData templateData, ProcessInstance pi)
-	{		
-		templateData.addEntry(_PROCESS_VISIBLE_ID, hasText(pi.getExternalKey()) ? pi.getExternalKey() : pi.getInternalId());
-		templateData.addEntry(_PROCESS_ID, hasText(pi.getExternalKey()) ? pi.getExternalKey() : pi.getInternalId());
-		templateData.addEntry(_PROCESS, pi);
-		templateData.addEntry(_CREATOR, getRegistry().getUserSource().getUserByLogin(pi.getCreatorLogin()));
-		
+	public TemplateDataProvider addProcessData(TemplateData templateData, IAttributesProvider provider) {
+        if (provider != null && provider instanceof ProcessInstance) {
+            ProcessInstance pi = (ProcessInstance) provider;
+            templateData.addEntry(_PROCESS_VISIBLE_ID, hasText(pi.getExternalKey()) ? pi.getExternalKey() : pi.getInternalId());
+            templateData.addEntry(_PROCESS_ID, hasText(pi.getExternalKey()) ? pi.getExternalKey() : pi.getInternalId());
+            templateData.addEntry(_PROCESS, pi);
+            templateData.addEntry(_CREATOR, getRegistry().getUserSource().getUserByLogin(pi.getCreatorLogin()));
+        }
 		return this;
 	}
 	
@@ -116,14 +118,16 @@ public class TemplateDataProvider implements ITemplateDataProvider
 	}
 	
 	@Override
-	public TemplateDataProvider addArgumentProvidersData(TemplateData templateData, String templateArgumentProvider, ProcessInstance pi)
+	public TemplateDataProvider addArgumentProvidersData(TemplateData templateData, String templateArgumentProvider, IAttributesProvider provider)
 	{
 		if (hasText(templateArgumentProvider))
 		{
 			for (TemplateArgumentProvider argumentProvider : argumentProviders) {
 				if (templateArgumentProvider.equalsIgnoreCase(argumentProvider.getName())) {
 					TemplateArgumentProviderParams params = new TemplateArgumentProviderParams();
-					params.setProcessInstance(pi);
+                    if (provider instanceof ProcessInstance)
+					    params.setProcessInstance((ProcessInstance) provider);
+                    params.setAttributesProvider(provider);
 					argumentProvider.addData(templateData, params);
 					break;
 				}

@@ -1,24 +1,17 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.step;
 
 import org.aperteworkflow.files.IFilesRepositoryFacade;
-import org.aperteworkflow.files.exceptions.DownloadFileException;
-import org.aperteworkflow.files.model.FileItemContent;
-import org.aperteworkflow.files.model.IFilesRepositoryItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.net.bluesoft.rnd.processtool.model.BpmStep;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
-import pl.net.bluesoft.rnd.processtool.model.UserDataBean;
 import pl.net.bluesoft.rnd.processtool.steps.ProcessToolProcessStep;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AliasName;
 import pl.net.bluesoft.rnd.processtool.ui.widgets.annotations.AutoWiredProperty;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.dao.BpmNotificationMailPropertiesDAO;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmAttachment;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationMailProperties;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.EmailSender;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.IBpmNotificationService;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.NotificationData;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service.TemplateData;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.utils.EmailUtils;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -64,7 +57,7 @@ public class SendMailStep implements ProcessToolProcessStep {
 			profileName = "Default";
 		}
 
-		UserData user = getRecipient();
+		UserData user = EmailUtils.getRecipient(recipient);
 		
 		TemplateData templateData =	service.createTemplateData(template, Locale.getDefault());
 		
@@ -78,7 +71,8 @@ public class SendMailStep implements ProcessToolProcessStep {
 			.setRecipient(user)
 			.setTemplateData(templateData);
 
-		notificationData.setAttachments(getAttachments(step.getProcessInstance()));
+
+		notificationData.setAttachments(EmailUtils.getAttachments(step.getProcessInstance(), EmailUtils.getAttachmentIds(attachmentIds), filesRepository, "all".equals(attachmentIds)));
 
 		if (hasText(source)) {
 			notificationData.setSource(source);
@@ -87,7 +81,7 @@ public class SendMailStep implements ProcessToolProcessStep {
 			notificationData.setSource(String.valueOf(step.getProcessInstance().getId()));
 		}
 
-		notificationData.setDefaultSender(getDefaultSender());
+		notificationData.setDefaultSender(EmailUtils.getDefaultSender(profileName));
 
         try {
         	EmailSender.sendEmail(service, notificationData);
@@ -100,53 +94,5 @@ public class SendMailStep implements ProcessToolProcessStep {
         return STATUS_OK;
     }
 
-	private String getDefaultSender() {
-		BpmNotificationMailProperties profile = new BpmNotificationMailPropertiesDAO().getProfile(profileName);
-		return profile.getDefaultSender();
-	}
-
-	private UserData getRecipient() {
-		if (recipient.contains("@")) {
-			UserDataBean result = new UserDataBean();
-			result.setEmail(recipient);
-			return result;
-		}
-		return getRegistry().getUserSource().getUserByLogin(recipient);
-	}
-
-	private List<BpmAttachment> getAttachments(ProcessInstance pi) {
-		if (!hasText(attachmentIds)) {
-			return Collections.emptyList();
-		}
-
-		List<BpmAttachment> result = new ArrayList<BpmAttachment>();
-
-		if ("all".equals(attachmentIds)) {
-			for (IFilesRepositoryItem repositoryItem : filesRepository.getFilesList(pi)) {
-				result.add(getBpmAttachment(repositoryItem.getId()));
-			}
-		}
-		else {
-			for (String attachmentId : attachmentIds.split(",")) {
-				result.add(getBpmAttachment(Long.valueOf(attachmentId)));
-			}
-		}
-		return result;
-	}
-
-	private BpmAttachment getBpmAttachment(Long attachmentId) {
-	    try {
-			FileItemContent fileItemContent = filesRepository.downloadFile(attachmentId);
-			BpmAttachment attachment = new BpmAttachment();
-
-			attachment.setName(fileItemContent.getName());
-			attachment.setContentType(fileItemContent.getContentType());
-			attachment.setBody(fileItemContent.getBytes());
-			return attachment;
-		}
-		catch (DownloadFileException e) {
-			throw new RuntimeException(e);
-		}
-	}
 }
 
