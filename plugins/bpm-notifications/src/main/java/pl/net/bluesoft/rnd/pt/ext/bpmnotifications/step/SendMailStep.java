@@ -34,7 +34,7 @@ public class SendMailStep implements ProcessToolProcessStep {
     private String template;
 
 	@AutoWiredProperty(substitute = true)
-	private String attachmentIds;
+	private String attachmentIds = "";
 
 	@AutoWiredProperty
 	private String templateArgumentProvider;
@@ -71,8 +71,13 @@ public class SendMailStep implements ProcessToolProcessStep {
 			.setRecipient(user)
 			.setTemplateData(templateData);
 
+        EmailUtils.EmailScope scope = EmailUtils.EmailScope.STANDARD;
+        if("ALL".equals(attachmentIds.toUpperCase()))
+            scope = EmailUtils.EmailScope.ALL;
+        if("MAIL".equals(attachmentIds.toUpperCase()))
+            scope = EmailUtils.EmailScope.MAIL;
 
-		notificationData.setAttachments(EmailUtils.getAttachments(step.getProcessInstance(), EmailUtils.getAttachmentIds(attachmentIds), filesRepository, "all".equals(attachmentIds)));
+		notificationData.setAttachments(EmailUtils.getAttachments(step.getProcessInstance(), EmailUtils.getAttachmentIds(attachmentIds), filesRepository, scope));
 
 		if (hasText(source)) {
 			notificationData.setSource(source);

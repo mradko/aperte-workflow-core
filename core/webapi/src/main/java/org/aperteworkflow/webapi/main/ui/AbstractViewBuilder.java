@@ -1,5 +1,6 @@
 package org.aperteworkflow.webapi.main.ui;
 
+import org.hibernate.Hibernate;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -111,6 +112,10 @@ public abstract class AbstractViewBuilder<T extends AbstractViewBuilder> {
     protected void buildWidget(final WidgetHierarchyBean widgetHierarchyBean) {
         IStateWidget widget = widgetHierarchyBean.getWidget();
         ProcessInstance processInstance = widgetHierarchyBean.getProcessInstance();
+        if(processInstance != null) {
+            Hibernate.initialize(processInstance.getProcessAttributes());
+            Hibernate.initialize(processInstance.getProcessSimpleAttributes());
+        }
         Element parent = widgetHierarchyBean.getParent();
 
         String aliasName = widget.getClassName();

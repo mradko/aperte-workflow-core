@@ -1,17 +1,5 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service;
 
-import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
-import static pl.net.bluesoft.rnd.util.TaskUtil.getTaskLink;
-import static pl.net.bluesoft.util.lang.Strings.hasText;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
 import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.di.ObjectFactory;
@@ -24,6 +12,12 @@ import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.addons.INotificationsAddonsMa
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 import pl.net.bluesoft.rnd.util.i18n.I18NSourceFactory;
+
+import java.util.*;
+
+import static pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry.Util.getRegistry;
+import static pl.net.bluesoft.rnd.util.TaskUtil.getTaskLink;
+import static pl.net.bluesoft.util.lang.Strings.hasText;
 
 
 /** 
@@ -136,7 +130,17 @@ public class TemplateDataProvider implements ITemplateDataProvider
 		
 		return this;
 	}
-    
+
+	@Override
+	public ITemplateDataProvider addAttributes(TemplateData templateData, Map<String, Object> attributes) {
+		if (attributes != null) {
+			for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+				templateData.addEntry(entry.getKey(), entry.getValue());
+			}
+		}
+		return this;
+	}
+
 	@Override
 	public void registerTemplateArgumentProvider(TemplateArgumentProvider provider) {
 		argumentProviders.add(provider);

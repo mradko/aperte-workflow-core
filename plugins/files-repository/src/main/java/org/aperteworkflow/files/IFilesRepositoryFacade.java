@@ -27,4 +27,6 @@ public interface IFilesRepositoryFacade {
 
     void updateDescription(Long filesRepositoryItemId, String fileDescription) throws UpdateDescriptionException;
 
+    void updateSendWithMail(Long filesRepositoryItemId, Boolean sendWithMail);
+
 }

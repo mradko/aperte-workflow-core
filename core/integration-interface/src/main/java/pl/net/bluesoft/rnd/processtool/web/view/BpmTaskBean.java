@@ -1,7 +1,6 @@
-package org.aperteworkflow.webapi.main.processes;
+package pl.net.bluesoft.rnd.processtool.web.view;
 
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBean;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import java.util.Date;

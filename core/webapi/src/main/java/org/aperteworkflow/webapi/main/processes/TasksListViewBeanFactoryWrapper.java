@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.plugins.ProcessToolRegistry;
+import pl.net.bluesoft.rnd.processtool.web.view.BpmTaskBeanFactory;
 import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBean;
 import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBeanFactory;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
@@ -31,6 +32,7 @@ public class TasksListViewBeanFactoryWrapper {
 
         return taskViewBean.createFrom(task, messageSource);
     }
+
 
     protected ProcessToolRegistry getProcessToolRegistry()
     {

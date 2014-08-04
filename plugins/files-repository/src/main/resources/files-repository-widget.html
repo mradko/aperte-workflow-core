@@ -1,4 +1,5 @@
 <#assign null = "null"/>
+<#assign isMailMode =((mode!"STANDARD")=="MAIL")>
 <#if attributesProvider.processInstance??>
     <#assign providerId = attributesProvider.processInstance.getId()!""/>
     <#assign controllerName = 'filescontroller'/>
@@ -16,16 +17,16 @@
 <#if !files??>
     <#assign files = processInstanceFiles/>
 </#if>
-<#assign mode = privileges?seq_contains("EDIT")?string("edit", "view")/>
-<#if mode != "edit">
-    <#assign mode = privileges?seq_contains("MIXED")?string("mixed", "view")/>
-    <#if mode != "mixed">
-        <#assign mode = "view"/>
+<#assign viewMode = privileges?seq_contains("EDIT")?string("edit", "view")/>
+<#if viewMode != "edit">
+    <#assign viewMode = privileges?seq_contains("MIXED")?string("mixed", "view")/>
+    <#if viewMode != "mixed">
+        <#assign viewMode = "view"/>
     </#if>
 </#if>
-<#if mode = "mixed">
+<#if viewMode = "mixed">
     <#if assignee != userLogin>
-        <#assign mode = "view"/>
+        <#assign viewMode = "view"/>
     </#if>
 </#if>
 
@@ -34,8 +35,8 @@
 <#assign updateDescriptionSuccess = messageSource.getMessage("widget.file.repository.results.table.updateDescription.success")/>
 
 <!-- Important: macros fileTableTr fileTableTrJs should not be formated due to javascript processor lack of new lines handling -->
-<#macro fileTableTr fileId fileName fileDescription fileCreateDate fileCreatorLogin><tr class="file-tr-l-${fileCreatorLogin}-l"><td class="fileId" style="display:none">${fileId}</td> <td class="fileName"><a href="#" class="fileNameDownloadHref">${fileName?html}</a></td> <td class="fileDescription"><span class="editableText">${(fileDescription!"")?html}</span></td> <td class="fileCreateDate">${fileCreateDate}</td><td>${fileCreatorLogin}</td></td><td><button class="btn btn-xs downloadFileBtn" style="margin-right: 10px;"alt="${messageSource.getMessage('widget.file.repository.results.table.downloadBtn')}"><span class="glyphicon glyphicon-floppy-save"/></button> <button class="btn btn-xs deleteFileBtn" style="margin-right: 10px;"alt="${messageSource.getMessage('widget.file.repository.results.table.deleteBtn')}"><span class="glyphicon glyphicon-remove"/></button> </td> </tr></#macro>
-<#macro fileTableTrJs><@fileTableTr fileId="%%fileId%%" fileName="%%fileName%%" fileDescription="%%fileDescription%%" fileCreateDate="%%fileCreateDate%%" fileCreatorLogin="%%fileCreatorLogin%%"/></#macro>
+<#macro fileTableTr fileId fileName fileDescription fileCreateDate fileCreatorLogin fileSendWithMail><tr class="file-tr-l-${fileCreatorLogin}-l"><td class="fileId" style="display:none">${fileId}</td> <td class="fileName"><a href="#" class="fileNameDownloadHref">${fileName?html}</a></td> <td class="fileDescription"><span class="editableText">${(fileDescription!"")?html}</span></td> <td class="fileCreateDate">${fileCreateDate}</td><td>${fileCreatorLogin}</td><#if isMailMode><td><div class="checkbox"><label><input type="checkbox" class="fileSendWithMail" <#if fileSendWithMail == "true">checked</#if>></label></div></#if></td><td><button class="btn btn-xs downloadFileBtn" style="margin-right: 10px;"alt="${messageSource.getMessage('widget.file.repository.results.table.downloadBtn')}"><span class="glyphicon glyphicon-floppy-save"/></button> <button class="btn btn-xs deleteFileBtn" style="margin-right: 10px;"alt="${messageSource.getMessage('widget.file.repository.results.table.deleteBtn')}"><span class="glyphicon glyphicon-remove"/></button> </td> </tr></#macro>
+<#macro fileTableTrJs><@fileTableTr fileId="%%fileId%%" fileName="%%fileName%%" fileDescription="%%fileDescription%%" fileCreateDate="%%fileCreateDate%%" fileCreatorLogin="%%fileCreatorLogin%%" fileSendWithMail="%%fileSendWithMail%%"/></#macro>
 
 <div class="panel panel-default">
 <div class="panel-body">
@@ -67,24 +68,29 @@
     <tr>
         <th class="id" style="display:none">${messageSource.getMessage("widget.file.repository.results.table.id")}
         </th>
-        <th class="name" style="width: 40px">${messageSource.getMessage("widget.file.repository.results.table.name")}
+        <th class="name">${messageSource.getMessage("widget.file.repository.results.table.name")}
         </th>
-        <th class="description" style="width: 120px">
+        <th class="description" style="max-width: 120px">
             ${messageSource.getMessage("widget.file.repository.results.table.description")}
         </th>
-        <th class="createDate" style="width: 80px">
+        <th class="createDate" style="max-width: 80px">
             ${messageSource.getMessage("widget.file.repository.results.table.createdDate")}
         </th>
-        <th class="creatorLogin" style="width: 80px">
+        <th class="creatorLogin">
             ${messageSource.getMessage("widget.file.repository.results.table.creatorLogin")}
         </th>
-        <th style="width: 30px">${messageSource.getMessage("widget.file.repository.results.table.fileAction")}</th>
+        <#if isMailMode>
+            <th class="sendWithMail" style="width: 80px">
+                ${messageSource.getMessage("widget.file.repository.results.table.sendAsEmail")}
+            </th>
+        </#if>
+        <th>${messageSource.getMessage("widget.file.repository.results.table.fileAction")}</th>
     </tr>
     </thead>
     <tbody>
     <#list files?sort_by("createDate", "name") as file>
         <@fileTableTr fileId=file.id?c fileName=file.name fileDescription=file.description!
-        fileCreateDate=file.createDate?string("dd-MM-yy HH:mm") fileCreatorLogin=file.creatorLogin/>
+        fileCreateDate=file.createDate?string("dd-MM-yy HH:mm") fileCreatorLogin=file.creatorLogin fileSendWithMail=(file.sendWithMail!false)?string("true", "false")/>
     </#list>
     </tbody>
 </table>
@@ -127,9 +133,10 @@
             urlGetFilesList = getDispatcherPortletFor('filescontroller', 'getFilesList'),
             urlDownloadFile = getNoReplyDispatcherPortletFor('${controllerName}', 'downloadFile'),
             urlDeleteFile = getDispatcherPortletFor('${controllerName}', 'deleteFile'),
+            urlMarkAsSendWithMail = getDispatcherPortletFor('${controllerName}', 'updateSendWithMail'),
             urlUpdateDescription = getDispatcherPortletFor('${controllerName}', 'updateDescription');
 
-    function initTable(mode) {
+    function initTable(viewMode) {
 
         $('.downloadFileBtn').unbind("click").on('click', function (e) {
             e.preventDefault();
@@ -139,12 +146,20 @@
             downloadURL(urlDownloadFile + '&filesRepositoryItemId=' + itemId);
         });
 
+        $('.fileSendWithMail').unbind("click").on('click', function (e) {
+            var row = $(this).closest('tr');
+            var itemId = row.find('td.fileId').text();
+
+            var sendWithMail = $(this).is(':checked');
+            $.getJSON(urlMarkAsSendWithMail + '&filesRepositoryItemId=' + itemId+ '&fileSendWithMail=' + encodeURIComponent(sendWithMail));
+        });
+
         $('.deleteFileBtn').unbind("click").on('click', function (e) {
             e.preventDefault();
             var row = $(this).closest('tr');
             var itemId = row.find('td.fileId').text();
             var fileName = row.find('td.fileName').text();
-            var msgConfirm = '${deleteAreYouSure}?js_string';
+            var msgConfirm = '${deleteAreYouSure?js_string}';
             msgConfirm = msgConfirm.replace('{0}', fileName);
             if (confirm(msgConfirm)) {
                 $.getJSON(urlDeleteFile + '&filesRepositoryItemId=' + itemId)
@@ -164,13 +179,12 @@
             makeFileNameClickable($(this));
         });
 
-        if("${mode}" == "edit") {
+        if("${viewMode}" == "edit") {
             $('.fileinput-button').show();
             $('#files-table tr').each(function() {
                 makeEditableOnClick($(this));
             });
-
-        } else if ("${mode}" == "mixed") {
+        } else if ("${viewMode}" == "mixed") {
             $('.fileinput-button').show();
             var rowsToEnable = $('#files-table').find('tr[class^="file-tr-l"]').filter('tr[class="file-tr-l-${userLogin}-l"]');
             $(rowsToEnable).each(function() {
@@ -178,14 +192,10 @@
             });
             var rowsToDisable = $('#files-table').find('tr[class^="file-tr-l"]:not(tr[class="file-tr-l-${userLogin}-l"])');
             $(rowsToDisable).find('button.deleteFileBtn').prop('disabled', true).hide();
-
-        } else if("${mode}" == "view") {
+        } else if("${viewMode}" == "view") {
             var disabledBtn = $('#files-table button.deleteFileBtn');
             disabledBtn.prop('disabled', true);
             disabledBtn.hide();
-            var disabledDownloadBtn = $('#files-table button.downloadFileBtn');
-            disabledDownloadBtn.prop('disabled', true);
-            disabledDownloadBtn.hide();
         }
 
 
@@ -249,7 +259,7 @@
 
         var MAX_FILE_SIZE = 50000000;
 
-        initTable("${mode}");
+        initTable("${viewMode}");
 
         $('#fileupload').fileupload({
             url: urlUploadFile,
@@ -312,7 +322,8 @@
                     .replace(new RegExp('%%fileName%%', 'g'), file.name)
                     .replace(new RegExp('%%fileDescription%%', 'g'), file.description != null ? file.description : "")
                     .replace(new RegExp('%%fileCreateDate%%', 'g'), $.format.date(file.createDate, 'dd-MM-yy HH:mm'))
-                    .replace(new RegExp('%%fileCreatorLogin%%', 'g'), file.creatorLogin);
+                    .replace(new RegExp('%%fileCreatorLogin%%', 'g'), file.creatorLogin)
+                    .replace(new RegExp('%%fileSendWithMail%%', 'g'), file.sendWithMail);
 
             var newRowTr = $(newRowTrHtml);
 
@@ -321,7 +332,7 @@
 
             $('#files-table').append(newRowTr);
 
-            initTable("${mode}");
+            initTable("${viewMode}");
 
         }).on('fileuploadfail',function (e, dataObj) {
 

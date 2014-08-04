@@ -1,20 +1,18 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
+import org.hibernate.annotations.Type;
+import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
+import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.HandleEmailsJob;
 
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
-import org.hibernate.annotations.Type;
-
-import pl.net.bluesoft.rnd.processtool.model.PersistentEntity;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.HandleEmailsJob;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 import static pl.net.bluesoft.util.lang.Strings.hasText;
 
@@ -188,5 +186,9 @@ public class BpmNotification extends PersistentEntity
 
 	public void setSource(String source) {
 		this.source = source;
+	}
+
+	public boolean hasAttachments() {
+		return attachments != null && !attachments.isEmpty();
 	}
 }

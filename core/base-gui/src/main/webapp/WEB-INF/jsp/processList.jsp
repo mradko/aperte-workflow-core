@@ -37,7 +37,7 @@
 				 { "sName":"clientType","bVisible":true ,"bVisible":parsedProcess.clientType, "bSortable": true,"mData": function(object){ if(object.highlight) return '<font color="red">'+object.clientType+'<span class="glyphicon glyphicon-exclamation-sign" style="margin-left: 5px" /></font>'; else return object.clientType;}},
 				 { "sName":"creationDate", "bSortable": true ,"bVisible":parsedProcess.creationDate,"mData": function(object){return $.format.date(object.creationDate, 'dd-MM-yy, HH:mm:ss');}}
 			 ],
-			 [[ 5, "desc" ],[ 6, "desc" ]]
+			 [[ 4, "desc" ],[ 5, "desc" ]]
 			);
 
 		dataTable.addParameter('taskListViewName','LOTComplaintView');

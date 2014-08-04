@@ -114,7 +114,16 @@ public class FilesRepositoryFacade implements IFilesRepositoryFacade {
         if (filesRepositoryItem == null) {
             throw new UpdateDescriptionException("File item with id=[" + filesRepositoryItemId + "] not found.");
         }
-        getFilesRepositoryItemDAO().updateDescriptionById(filesRepositoryItemId, fileDescription);
+        getFilesRepositoryItemDAO().updateDescription(filesRepositoryItem, fileDescription);
+    }
+
+    @Override
+    public void updateSendWithMail(Long filesRepositoryItemId, Boolean sendWithMail) {
+        IFilesRepositoryItem filesRepositoryItem = getFilesRepositoryItemDAO().getItemById(filesRepositoryItemId);
+        if (filesRepositoryItem == null) {
+            throw new RuntimeException("File item with id=[" + filesRepositoryItemId + "] not found.");
+        }
+        getFilesRepositoryItemDAO().updateSendWithMail(filesRepositoryItem, sendWithMail);
     }
 
 }

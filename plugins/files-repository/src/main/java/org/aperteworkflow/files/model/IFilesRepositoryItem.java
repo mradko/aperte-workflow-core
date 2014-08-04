@@ -30,4 +30,8 @@ public interface IFilesRepositoryItem {
     String getContentType();
 
     void setContentType(String contentType);
+
+    void setSendWithMail(Boolean sendWithMail);
+
+    Boolean getSendWithMail();
 }

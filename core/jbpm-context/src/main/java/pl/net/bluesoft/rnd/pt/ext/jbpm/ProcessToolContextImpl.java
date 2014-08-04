@@ -85,8 +85,6 @@ public class ProcessToolContextImpl implements ProcessToolContext {
                 dao = (T) processToolRegistry.getDataRegistry().getProcessDictionaryDAO(hibernateSession);
             } else if (ProcessInstanceDAO.class.equals(daoClass)) {
                 dao = (T) processToolRegistry.getDataRegistry().getProcessInstanceDAO(hibernateSession);
-            } else if (ProcessInstanceFilterDAO.class.equals(daoClass)) {
-                dao = (T) processToolRegistry.getDataRegistry().getProcessInstanceFilterDAO(hibernateSession);
             } else if (ProcessDefinitionDAO.class.equals(daoClass)) {
                 dao = (T) processToolRegistry.getDataRegistry().getProcessDefinitionDAO(hibernateSession);
             } else if (UserSubstitutionDAO.class.equals(daoClass)) {

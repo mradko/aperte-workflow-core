@@ -42,7 +42,6 @@ public interface DataRegistry {
 
 	ProcessDictionaryDAO getProcessDictionaryDAO(Session hibernateSession);
 	ProcessInstanceDAO getProcessInstanceDAO(Session hibernateSession);
-	ProcessInstanceFilterDAO getProcessInstanceFilterDAO(Session hibernateSession);
 	UserSubstitutionDAO getUserSubstitutionDAO(Session hibernateSession);
 	ProcessInstanceSimpleAttributeDAO getProcessInstanceSimpleAttributeDAO(Session hibernateSession);
 	ProcessDefinitionDAO getProcessDefinitionDAO(Session hibernateSession);

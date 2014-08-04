@@ -1,7 +1,6 @@
-package org.aperteworkflow.webapi.main.processes;
+package pl.net.bluesoft.rnd.processtool.web.view;
 
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
-import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBeanFactory;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
 import static pl.net.bluesoft.util.lang.Formats.nvl;
@@ -53,5 +52,11 @@ public class BpmTaskBeanFactory implements TasksListViewBeanFactory {
         taskBean.setStep(messageSource.getMessage(task.getCurrentProcessStateConfiguration().getDescription()));
         taskBean.setStepInfo(task.getStepInfo());
         return taskBean;
+    }
+
+    @Override
+    public IBpmTaskQueryCondition getBpmTaskQueryCondition() {
+        /* Standard bpm task query */
+        return new BpmTaskQueryCondition();
     }
 }

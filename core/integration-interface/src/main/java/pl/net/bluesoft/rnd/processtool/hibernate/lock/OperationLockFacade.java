@@ -74,17 +74,12 @@ public class OperationLockFacade implements ILockFacade
                 connection.close();
             }
 
-            return dataRegistry.getProcessToolContextFactory().withProcessToolContextManualTransaction(new ReturningProcessToolContextCallback<T>() {
-                @Override
-                public T processWithContext(ProcessToolContext ctx) {
-                    return operation.action(ctx);
-                }
-            });
+            return operation.action();
 
         }
         catch(Exception ex)
         {
-            logger.log(Level.SEVERE, "Problem during acquring lock for Teta Sync", ex);
+            logger.log(Level.SEVERE, "Problem during acquring lock", ex);
             return null;
         }
         finally
@@ -109,7 +104,7 @@ public class OperationLockFacade implements ILockFacade
                         connection.close();
                     }
                 } catch (SQLException e) {
-                    logger.log(Level.SEVERE, "Problem during acquring lock for Teta Sync", e);
+                    logger.log(Level.SEVERE, "Problem during acquring lock", e);
                     return null;
                 }
 

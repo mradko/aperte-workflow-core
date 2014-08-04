@@ -27,6 +27,7 @@ public class FilesRepositoryItem extends PersistentEntity implements IFilesRepos
     public static final String COLUMN_CREATE_DATE = "create_date";
     public static final String COLUMN_CREATOR_LOGIN = "creator_login";
     public static final String COLUMN_CONTENT_TYPE = "content_type";
+    public static final String COLUMN_SEND_WITH_MAIL = "send_with_mail";
 
     @Column(name = COLUMN_NAME, nullable = false)
     @Index(name = "idx_pt_files_name")
@@ -40,6 +41,9 @@ public class FilesRepositoryItem extends PersistentEntity implements IFilesRepos
 
     @Column(name = COLUMN_CONTENT_TYPE, nullable = false)
     private String contentType;
+
+    @Column(name = COLUMN_SEND_WITH_MAIL)
+    private Boolean sendWithMail = false;
 
     @Column(name = COLUMN_CREATE_DATE, nullable = false)
     private Date createDate;
@@ -96,6 +100,11 @@ public class FilesRepositoryItem extends PersistentEntity implements IFilesRepos
         return contentType;
     }
 
+    public Boolean getSendWithMail() {
+        return sendWithMail == null ? false : sendWithMail;
+    }
 
-
+    public void setSendWithMail(Boolean sendWithMail) {
+        this.sendWithMail = sendWithMail;
+    }
 }

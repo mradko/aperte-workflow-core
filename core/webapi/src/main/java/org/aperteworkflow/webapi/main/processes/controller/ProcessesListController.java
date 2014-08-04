@@ -31,6 +31,8 @@ import pl.net.bluesoft.rnd.processtool.web.domain.DataPagingBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.ErrorResultBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.GenericResultBean;
 import pl.net.bluesoft.rnd.processtool.web.domain.IProcessToolRequestContext;
+import pl.net.bluesoft.rnd.processtool.web.view.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.web.view.ProcessInstanceFilterSortingColumn;
 import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBean;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
 
@@ -51,14 +53,6 @@ import static org.aperteworkflow.webapi.main.processes.controller.TaskViewContro
 public class ProcessesListController extends AbstractProcessToolServletController
 {
 	private static Logger logger = Logger.getLogger(ProcessesListController.class.getName());
-
-    private static final String PROCESS_NAME_COLUMN = "name";
-    private static final String PROCESS_CODE_COLUMN = "code";
-    private static final String PROCESS_STEP_COLUMN = "step";
-    private static final String PROCESS_BUSINESS_STATUS_COLUMN = "businessStatus";
-    private static final String CREATOR_NAME_COLUMN = "creator";
-    private static final String ASSIGNEE_NAME_COLUMN = "assignee";
-    private static final String CREATED_DATE_COLUMN = "creationDate";
 
     private static final String TASKS_LIST_VIEW_NAME_PARAM = "taskListViewName";
 
@@ -540,11 +534,21 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                     filter.setProcessBpmKey(searchProcessKey);
                 }
 
-                JQueryDataTableColumn sortingColumn = dataTable.getFirstSortingColumn();
+                List<JQueryDataTableColumn> sortingColumns = dataTable.getSortingColumnOrder();
+
+                for(JQueryDataTableColumn sortingColumn: sortingColumns)
+                {
+                    ProcessInstanceFilterSortingColumn processInstanceFilterSortingColumn = new ProcessInstanceFilterSortingColumn();
+                    processInstanceFilterSortingColumn.setColumnName(sortingColumn.getPropertyName());
+                    processInstanceFilterSortingColumn.setPriority(sortingColumn.getPriority());
+                    processInstanceFilterSortingColumn.setOrder(sortingColumn.getSortedAsc() ? QueueOrder.ASC : QueueOrder.DESC);
+                    filter.addSortingColumnOrder(processInstanceFilterSortingColumn);
+                }
                 
                 filter.setFilterOwnerLogin(context.getUser().getLogin());
-                filter.setSortOrderCondition(mapColumnNameToOrderCondition(sortingColumn.getPropertyName()));
-                filter.setSortOrder(sortingColumn.getSortedAsc() ? QueueOrder.ASC : QueueOrder.DESC);
+
+                filter.setViewName(viewName);
+
 
                 long t1 = System.currentTimeMillis();
 
@@ -644,10 +648,19 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 filter.setExpression(searchString);
                 filter.setLocale(messageSource.getLocale());
 
-                JQueryDataTableColumn sortingColumn = dataTable.getFirstSortingColumn();
+                List<JQueryDataTableColumn> sortingColumns = dataTable.getSortingColumnOrder();
 
-                filter.setSortOrderCondition(mapColumnNameToOrderCondition(sortingColumn.getPropertyName()));
-                filter.setSortOrder(sortingColumn.getSortedAsc() ? QueueOrder.ASC : QueueOrder.DESC);
+                for(JQueryDataTableColumn sortingColumn: sortingColumns)
+                {
+                    ProcessInstanceFilterSortingColumn processInstanceFilterSortingColumn = new ProcessInstanceFilterSortingColumn();
+                    processInstanceFilterSortingColumn.setColumnName(sortingColumn.getPropertyName());
+                    processInstanceFilterSortingColumn.setPriority(sortingColumn.getPriority());
+                    processInstanceFilterSortingColumn.setOrder(sortingColumn.getSortedAsc() ? QueueOrder.ASC : QueueOrder.DESC);
+                    filter.addSortingColumnOrder(processInstanceFilterSortingColumn);
+
+                }
+
+                filter.setViewName(viewName);
 
                 long t1 = System.currentTimeMillis();
 
@@ -707,33 +720,6 @@ public class ProcessesListController extends AbstractProcessToolServletControlle
                 return true;
 
         return false;
-    }
-
-    private QueueOrderCondition mapColumnNameToOrderCondition(String columnName)
-    {
-        if(PROCESS_NAME_COLUMN.equals(columnName))
-            return QueueOrderCondition.SORT_BY_PROCESS_NAME_ORDER;
-
-        else if(PROCESS_STEP_COLUMN.equals(columnName))
-            return QueueOrderCondition.SORT_BY_PROCESS_STEP_ORDER;
-
-        else if(PROCESS_CODE_COLUMN.equals(columnName))
-            return QueueOrderCondition.SORT_BY_PROCESS_CODE_ORDER;
-
-        else if(PROCESS_BUSINESS_STATUS_COLUMN.equals(columnName))
-            return QueueOrderCondition.SORT_BY_PROCESS_BUSINESS_STATUS_ORDER;
-
-        else if(CREATOR_NAME_COLUMN.equals(columnName))
-            return QueueOrderCondition.SORT_BY_CREATOR_ORDER;
-
-        else if(ASSIGNEE_NAME_COLUMN.equals(columnName))
-            return QueueOrderCondition.SORT_BY_ASSIGNEE_ORDER;
-
-        else if(CREATED_DATE_COLUMN.equals(columnName))
-            return QueueOrderCondition.SORT_BY_DATE_ORDER;
-
-        else
-            return null;
     }
 
 	private static boolean isNull(String value) {

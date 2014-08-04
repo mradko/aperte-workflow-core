@@ -39,8 +39,6 @@
         <property name="current_session_context_class">jta</property>-->
 		<property name="hibernate.transaction.flush_before_completion">true</property>
 
-
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstance"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttachmentAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute"/>

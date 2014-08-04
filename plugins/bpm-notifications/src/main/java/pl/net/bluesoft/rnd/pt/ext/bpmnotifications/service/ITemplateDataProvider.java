@@ -1,15 +1,15 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.service;
 
-import java.util.List;
-import java.util.Locale;
-
 import pl.net.bluesoft.rnd.processtool.bpm.ProcessToolBpmSession;
 import pl.net.bluesoft.rnd.processtool.model.BpmTask;
 import pl.net.bluesoft.rnd.processtool.model.IAttributesProvider;
-import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
 import pl.net.bluesoft.rnd.processtool.model.UserData;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationConfig;
 import pl.net.bluesoft.rnd.util.i18n.I18NSource;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /** 
  * Data provider for e-mail notifications
@@ -96,6 +96,8 @@ public interface ITemplateDataProvider extends IArgumentProviderHandler
 	
 	/** Add entries from additional argument providers */
 	ITemplateDataProvider addArgumentProvidersData(TemplateData templateData, String templateArgumentProvider, IAttributesProvider provider);
+
+	ITemplateDataProvider addAttributes(TemplateData templateData, Map<String, Object> attributes);
 	
 	/** Add technical additional data. This method should be deleted in future refactoring */
 	ITemplateDataProvider addContextAdditionalData(TemplateData templateData, BpmNotificationConfig cfg, ProcessToolBpmSession bpmSession);

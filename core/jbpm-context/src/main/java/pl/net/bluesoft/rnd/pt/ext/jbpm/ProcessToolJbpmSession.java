@@ -34,6 +34,10 @@ import pl.net.bluesoft.rnd.processtool.model.token.AccessToken;
 import pl.net.bluesoft.rnd.processtool.plugins.DataRegistry;
 import pl.net.bluesoft.rnd.processtool.token.IAccessTokenFactory;
 import pl.net.bluesoft.rnd.processtool.token.ITokenService;
+import pl.net.bluesoft.rnd.processtool.web.view.BpmTaskBeanFactory;
+import pl.net.bluesoft.rnd.processtool.web.view.ProcessInstanceFilter;
+import pl.net.bluesoft.rnd.processtool.web.view.ProcessInstanceFilterSortingColumn;
+import pl.net.bluesoft.rnd.processtool.web.view.TasksListViewBeanFactory;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.JbpmService;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.BpmTaskNotificationQuery;
 import pl.net.bluesoft.rnd.pt.ext.jbpm.service.query.BpmTaskQuery;
@@ -365,13 +369,14 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 	}
 
 	@Override
-	public int getTasksCount(String userLogin, QueueType... queueTypes) {
-		return getTasksCount(userLogin, Arrays.asList(queueTypes));
-	}
+	public int getTasksCount(ProcessInstanceFilter queueFilter)
+    {
 
-	@Override
-	public int getTasksCount(String userLogin, Collection<QueueType> queueTypes) {
-		return new BpmTaskQuery(dataRegistry.getHibernateDialect()).user(userLogin).virtualQueues(queueTypes).count();
+        return new BpmTaskQuery(dataRegistry.getHibernateDialect())
+                .user(queueFilter.getFilterOwnerLogin())
+                .virtualQueues(queueFilter.getQueueTypes())
+                .queryConditions(new BpmTaskBeanFactory().getBpmTaskQueryCondition())
+                .count();
 	}
 
 	@Override
@@ -492,6 +497,15 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 
 		BpmTaskQuery taskFilterQuery = new BpmTaskQuery(dataRegistry.getHibernateDialect());
 
+        if(filter.getViewName()==null || filter.getViewName().isEmpty())
+            taskFilterQuery.queryConditions(new BpmTaskBeanFactory().getBpmTaskQueryCondition());
+        else
+        {
+            TasksListViewBeanFactory taskViewBeanFactory = registry.getGuiRegistry().getTasksListView(filter.getViewName());
+            taskFilterQuery.queryConditions(taskViewBeanFactory.getBpmTaskQueryCondition());
+        }
+
+
    		/* Queues filter do not have owner */
 		if (filter.getFilterOwnerLogin() != null) {
 			taskFilterQuery.user(filter.getFilterOwnerLogin());
@@ -506,16 +520,6 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 			taskFilterQuery.taskNames(filter.getTaskNames());
 		}
 
-   		/* Add conidtion for created before date */
-		if (filter.getCreatedBefore() != null) {
-			taskFilterQuery.createdBefore(filter.getCreatedBefore());
-		}
-
-   		/* Add conidtion for created after date */
-		if (filter.getCreatedAfter() != null) {
-			taskFilterQuery.createdAfter(filter.getCreatedAfter());
-		}
-
 		if (!filter.getQueues().isEmpty()) {
 			taskFilterQuery.queues(filter.getQueues());
 		}
@@ -528,7 +532,8 @@ public class ProcessToolJbpmSession extends AbstractProcessToolSession implement
 		taskFilterQuery.processBpmKey(filter.getProcessBpmKey());
 		taskFilterQuery.searchExpression(filter.getExpression(), filter.getLocale());
 
-		taskFilterQuery.orderBy(filter.getSortOrderCondition(), filter.getSortOrder());
+        for(ProcessInstanceFilterSortingColumn sortingColumn: filter.getSortingColumns())
+		    taskFilterQuery.orderBy(sortingColumn.getColumnName(), sortingColumn.getPriority(),sortingColumn.getOrder());
 
 		return taskFilterQuery;
 	}

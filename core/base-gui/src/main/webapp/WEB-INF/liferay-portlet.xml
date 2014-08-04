@@ -115,6 +115,9 @@
         <header-portlet-javascript>/sa/js/jquery.iframe-transport.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/aperte/aperte.datatable.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/aperte/aperte.widget.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/bootstrap-wysiwyg.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/external/jquery.hotkeys.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/external/google-code-prettify/prettify.js</header-portlet-javascript>
         <header-portlet-css>/sa/css/bootstrap.min.css</header-portlet-css>
         <header-portlet-css>/sa/css/bootstrap-theme.min.css</header-portlet-css>
         <header-portlet-css>/sa/css/aperteworkflow.css</header-portlet-css>
@@ -124,6 +127,8 @@
         <header-portlet-css>/sa/css/select2.css</header-portlet-css>
         <header-portlet-css>/sa/css/select2-bootstrap.css</header-portlet-css>
         <header-portlet-css>/sa/css/liferay.css</header-portlet-css>
+		<header-portlet-css>/sa/css/liferay.css</header-portlet-css>
+		<header-portlet-css>/sa/js/external/google-code-prettify/prettify.css</header-portlet-css>
         <header-portlet-javascript>/sa/js/respond.min.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/jquery.mask.min.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/jquery.validate.js</header-portlet-javascript>
@@ -247,7 +252,10 @@
         <header-portlet-javascript>/sa/js/aperte/aperte.widget.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/jquery.mask.min.js</header-portlet-javascript>
         <header-portlet-javascript>/sa/js/jquery.validate.js</header-portlet-javascript>
-        <header-portlet-css>/sa/css/bootstrap.min.css</header-portlet-css>
+		<header-portlet-javascript>/sa/js/bootstrap-wysiwyg.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/external/jquery.hotkeys.js</header-portlet-javascript>
+		<header-portlet-javascript>/sa/js/external/google-code-prettify/prettify.js</header-portlet-javascript>
+		<header-portlet-css>/sa/css/bootstrap.min.css</header-portlet-css>
         <header-portlet-css>/sa/css/bootstrap-theme.min.css</header-portlet-css>
         <header-portlet-css>/sa/css/aperteworkflow.css</header-portlet-css>
         <header-portlet-css>/sa/css/jquery-ui-1.10.4.custom.min.css</header-portlet-css>
@@ -256,6 +264,7 @@
         <header-portlet-css>/sa/css/select2.css</header-portlet-css>
         <header-portlet-css>/sa/css/select2-bootstrap.css</header-portlet-css>
         <header-portlet-css>/sa/css/liferay.css</header-portlet-css>
+		<header-portlet-css>/sa/js/external/google-code-prettify/prettify.css</header-portlet-css>
         <header-portlet-javascript>/sa/js/respond.min.js</header-portlet-javascript>
 	</portlet>
 

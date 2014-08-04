@@ -26,8 +26,17 @@ import static pl.net.bluesoft.util.lang.Strings.hasText;
  * Created by pkuciapski on 2014-07-25.
  */
 public class EmailUtils {
-    public static void sendMail(String template, IAttributesProvider attributesProvider, String recipient, String templateArgumentProvider, String profileName,
-                                IFilesRepositoryFacade filesRepository, List<Long> attachmentIds, String source, boolean allAttachments) throws Exception {
+    public enum EmailScope
+    {
+        ALL,
+        MAIL,
+        STANDARD
+    }
+
+    public static void sendMail(String recipient, String template, String templateArgumentProvider, String profileName,
+								String source, EmailScope scope, IAttributesProvider attributesProvider,
+								IFilesRepositoryFacade filesRepository, List<Long> attachmentIds,
+								Map<String, Object> attributes) throws Exception {
         IBpmNotificationService service = getRegistry().getRegisteredService(IBpmNotificationService.class);
         TemplateData templateData =	service.createTemplateData(template, Locale.getDefault());
         UserData user = getRecipient(recipient);
@@ -35,19 +44,20 @@ public class EmailUtils {
         service.getTemplateDataProvider()
                 .addProcessData(templateData, attributesProvider)
                 .addUserToNotifyData(templateData, user)
-                .addArgumentProvidersData(templateData, templateArgumentProvider, attributesProvider);
+                .addArgumentProvidersData(templateData, templateArgumentProvider, attributesProvider)
+				.addAttributes(templateData, attributes);
 
         NotificationData notificationData = new NotificationData()
                 .setProfileName(profileName)
                 .setRecipient(user)
                 .setTemplateData(templateData);
 
-        notificationData.setAttachments(getAttachments(attributesProvider, attachmentIds, filesRepository, allAttachments));
+        notificationData.setAttachments(getAttachments(attributesProvider, attachmentIds, filesRepository, scope));
 
         if (hasText(source)) {
             notificationData.setSource(source);
         }
-        else {
+        else if (attributesProvider != null) {
             notificationData.setSource(String.valueOf(attributesProvider.getId()));
         }
 
@@ -66,16 +76,23 @@ public class EmailUtils {
         return getRegistry().getUserSource().getUserByLogin(recipient);
     }
 
-    public static List<BpmAttachment> getAttachments(IAttributesProvider provider, List<Long> attachmentIds, IFilesRepositoryFacade filesRepository, boolean allAttachments) {
-        if (attachmentIds == null || (attachmentIds != null && attachmentIds.size() == 0)) {
+    public static List<BpmAttachment> getAttachments(IAttributesProvider provider, List<Long> attachmentIds, IFilesRepositoryFacade filesRepository, EmailScope scope) {
+        if (attachmentIds == null || attachmentIds.isEmpty()) {
             return Collections.emptyList();
         }
 
         List<BpmAttachment> result = new ArrayList<BpmAttachment>();
 
-        if (allAttachments) {
+        if (EmailScope.ALL.equals(scope)) {
             for (IFilesRepositoryItem repositoryItem : filesRepository.getFilesList(provider)) {
                 result.add(getBpmAttachment(repositoryItem.getId(), filesRepository));
+            }
+        }
+        else if(EmailScope.MAIL.equals(scope))
+        {
+            for (IFilesRepositoryItem repositoryItem : filesRepository.getFilesList(provider)) {
+                if(repositoryItem.getSendWithMail())
+                    result.add(getBpmAttachment(repositoryItem.getId(), filesRepository));
             }
         }
         else {
@@ -109,7 +126,7 @@ public class EmailUtils {
     }
 
     public static List<Long> getAttachmentIds(String parameter) {
-        if (parameter != null) {
+        if (parameter != null && !parameter.isEmpty()) {
             List<String> list = Arrays.asList(parameter.split(","));
             return Lists.transform(list, new Function<String, Long>() {
                 @Override

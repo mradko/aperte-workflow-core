@@ -37,6 +37,7 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractFilesController implements IOsgiWebController {
     public static final String FILE_DESCRIPTION_PARAM_NAME = "fileDescription";
+    public static final String FILE_SENDWITHMAIL_PARAM_NAME = "fileSendWithMail";
     private static Logger logger = Logger.getLogger(FilesController.class.getName());
 
     private static final String PROCESS_INSTANCE_ID_REQ_PARAM_NAME = "processInstanceId";
@@ -169,6 +170,24 @@ public abstract class AbstractFilesController implements IOsgiWebController {
         } catch (UpdateDescriptionException e) {
             logger.log(Level.SEVERE, "[FILES_REPOSITORY] Cannot modify description of file in repository with item id=[" + filesRepositoryItemId + "].", e);
             result.addError("Cannot modify description of file in repository with item id=[" + filesRepositoryItemId + "].", e.getMessage());
+            return result;
+        }
+        return result;
+    }
+
+    @ControllerMethod(action = "updateSendWithMail")
+    public GenericResultBean updateSendWithMail(final OsgiWebRequest invocation) {
+        GenericResultBean result = new GenericResultBean();
+        HttpServletRequest request = invocation.getRequest();
+        Long filesRepositoryItemId = getFilesRepositoryItemId(request);
+        String sendWithMailString = request.getParameter(FILE_SENDWITHMAIL_PARAM_NAME);
+
+        try {
+            Boolean sendWithMail = Boolean.parseBoolean(sendWithMailString);
+            filesRepoFacade.updateSendWithMail(filesRepositoryItemId, sendWithMail);
+        } catch (Throwable e) {
+            logger.log(Level.SEVERE, "[FILES_REPOSITORY] Cannot modify sendWithHtml of file in repository with item id=[" + filesRepositoryItemId + "].", e);
+            result.addError("Cannot modify sendWithHtml of file in repository with item id=[" + filesRepositoryItemId + "].", e.getMessage());
             return result;
         }
         return result;

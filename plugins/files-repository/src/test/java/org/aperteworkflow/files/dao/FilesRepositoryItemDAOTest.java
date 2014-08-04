@@ -1,6 +1,5 @@
 package org.aperteworkflow.files.dao;
 
-import org.aperteworkflow.files.dao.config.FilesRepositoryStorageConfig;
 import org.aperteworkflow.files.model.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -10,7 +9,6 @@ import org.junit.*;
 import pl.net.bluesoft.rnd.processtool.dao.ProcessInstanceDAO;
 import pl.net.bluesoft.rnd.processtool.dao.impl.ProcessInstanceDAOImpl;
 import pl.net.bluesoft.rnd.processtool.model.ProcessInstance;
-import pl.net.bluesoft.util.lang.Classes;
 
 import javax.naming.NamingException;
 import java.util.*;
@@ -124,7 +122,7 @@ public class FilesRepositoryItemDAOTest {
     public void testUpdateDescriptionById() {
         IFilesRepositoryItem newItem1 = dao.addItem(exProcessInstance, "1.txt", "1_relativePath.txt", "Description of 1.txt", "text/plain", CREATOR_LOGIN, factory);
         final String newDesc = "New Description for 1.txt";
-        dao.updateDescriptionById(newItem1.getId(), newDesc);
+        dao.updateDescription(newItem1, newDesc);
         IFilesRepositoryItem updatedNewItem1 = dao.getItemById(newItem1.getId());
 
         Assert.assertEquals("Updated description doesn't match with expected", newDesc, updatedNewItem1.getDescription());

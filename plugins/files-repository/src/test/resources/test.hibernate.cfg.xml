@@ -41,7 +41,7 @@
         <mapping class="org.aperteworkflow.files.model.FilesRepositoryItem"/>
         <mapping class="org.aperteworkflow.files.model.FilesRepositoryProcessAttribute" />
 
-        <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstanceFilter"/>
+        <mapping class="pl.net.bluesoft.rnd.processtool.web.view.ProcessInstanceFilter"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.ProcessInstance"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttachmentAttribute"/>
         <mapping class="pl.net.bluesoft.rnd.processtool.model.processdata.ProcessInstanceAttribute"/>

@@ -1,9 +1,6 @@
 package pl.net.bluesoft.rnd.pt.ext.bpmnotifications.facade;
 
-import org.hibernate.Session;
-import pl.net.bluesoft.rnd.processtool.ProcessToolContext;
 import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotification;
-import pl.net.bluesoft.rnd.pt.ext.bpmnotifications.model.BpmNotificationMailProperties;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -34,7 +31,7 @@ public class NotificationsJdbcFacade
             statement.setInt(1, time - interval);
             statement.setInt(2, time + interval);
 
-            Collection<BpmNotification> notifications = new LinkedList<BpmNotification>();
+            Collection<BpmNotification> notifications = new ArrayList<BpmNotification>();
 
             ResultSet resultSet = statement.executeQuery();
             while(resultSet.next())
@@ -52,6 +49,7 @@ public class NotificationsJdbcFacade
                 Integer sendAfterHour = resultSet.getInt("SENDAFTERHOUR");
                 String sender = resultSet.getString("SENDER");
                 String subject = resultSet.getString("SUBJECT");
+				String source = resultSet.getString("SOURCE");
 
                 notification.setId(id);
                 notification.setAttachments(attachments);
@@ -64,10 +62,9 @@ public class NotificationsJdbcFacade
                 notification.setSendAsHtml(sendAsHtml);
                 notification.setSender(sender);
                 notification.setSubject(subject);
+				notification.setSource(source);
 
                 notifications.add(notification);
-
-
             }
 
             return notifications;
@@ -76,7 +73,6 @@ public class NotificationsJdbcFacade
             throw new RuntimeException("Probem with sql", e);
         }
 	}
-
 	
 	public static void removeNotification(Connection connection, BpmNotification notification)
 	{
@@ -92,7 +88,4 @@ public class NotificationsJdbcFacade
             throw new RuntimeException("Probem with sql", e);
         }
 	}
-
-
-
 }

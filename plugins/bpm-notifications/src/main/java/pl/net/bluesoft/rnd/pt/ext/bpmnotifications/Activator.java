@@ -75,7 +75,7 @@ public class Activator implements BundleActivator, EventListener<BpmEvent>
                 mailEventListener = new MailEventListener(engine);
                 processToolRegistry.getEventBusManager().subscribe(MailEvent.class, mailEventListener);
 
-		/* Register scheduler for notifications sending */
+		        /* Register scheduler for notifications sending */
                 schedulerActivator.scheduleNotificationsSend(engine);
 
                 String path = "/pl/net/bluesoft/rnd/pt/ext/bpmnotifications/html/file.html";

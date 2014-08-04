@@ -1,9 +1,6 @@
 package org.aperteworkflow.files.dao;
 
-import org.aperteworkflow.files.model.FilesRepositoryAttributes;
-import org.aperteworkflow.files.model.FilesRepositoryItem;
-import org.aperteworkflow.files.model.FilesRepositoryProcessAttribute;
-import org.aperteworkflow.files.model.IFilesRepositoryAttribute;
+import org.aperteworkflow.files.model.*;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
@@ -24,6 +21,11 @@ public class FilesRepositoryItemDAOImpl extends SimpleHibernateBean<IFilesReposi
 
     @Override
     public FilesRepositoryItem addItem(IAttributesConsumer consumer, String name, String description, String relativePath, String contentType, String creatorLogin, FilesRepositoryAttributeFactory factory) {
+        return addItem(consumer, name, description, relativePath, contentType, creatorLogin, false, factory);
+    }
+
+    @Override
+    public FilesRepositoryItem addItem(IAttributesConsumer consumer, String name, String description, String relativePath, String contentType, String creatorLogin, Boolean sendAsEmail, FilesRepositoryAttributeFactory factory) {
         FilesRepositoryItem item = new FilesRepositoryItem();
         item.setName(name);
         item.setDescription(description);
@@ -59,8 +61,7 @@ public class FilesRepositoryItemDAOImpl extends SimpleHibernateBean<IFilesReposi
     }
 
     @Override
-    public void updateDescriptionById(Long id, String description) {
-        FilesRepositoryItem item = getItemById(id);
+    public void updateDescription(IFilesRepositoryItem item, String description) {
         item.setDescription(description);
         getSession().saveOrUpdate(item);
     }
@@ -68,6 +69,12 @@ public class FilesRepositoryItemDAOImpl extends SimpleHibernateBean<IFilesReposi
     @Override
     public FilesRepositoryItem getItemById(Long id) {
         return (FilesRepositoryItem) getSession().get(FilesRepositoryItem.class, id);
+    }
+
+    @Override
+    public void updateSendWithMail(IFilesRepositoryItem item, Boolean sendWithMail) {
+        item.setSendWithMail(sendWithMail);
+        getSession().saveOrUpdate(item);
     }
 
 }

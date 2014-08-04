@@ -366,10 +366,6 @@ public class DataRegistryImpl implements DataRegistry {
         return new ProcessInstanceSimpleAttributeDAOImpl(hibernateSession);
     }
 
-    @Override
-    public ProcessInstanceFilterDAO getProcessInstanceFilterDAO(Session hibernateSession) {
-        return new ProcessInstanceFilterDAOImpl(hibernateSession);
-    }
 
     @Override
     public UserSubstitutionDAO getUserSubstitutionDAO(Session hibernateSession) {

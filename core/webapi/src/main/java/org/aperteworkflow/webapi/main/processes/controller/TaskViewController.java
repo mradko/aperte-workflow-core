@@ -2,7 +2,7 @@ package org.aperteworkflow.webapi.main.processes.controller;
 
 import org.aperteworkflow.webapi.main.AbstractProcessToolServletController;
 import org.aperteworkflow.webapi.main.processes.ActionPseudoTaskBean;
-import org.aperteworkflow.webapi.main.processes.BpmTaskBean;
+import pl.net.bluesoft.rnd.processtool.web.view.BpmTaskBean;
 import org.aperteworkflow.webapi.main.ui.TaskViewBuilder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
